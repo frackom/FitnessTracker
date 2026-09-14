@@ -1,0 +1,49 @@
+.exercises-page {
+  width: min(1100px, 90%);
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.exercises-page h1 {
+  margin-bottom: 1.5rem;
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.exercise-card {
+  overflow: hidden;
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+}
+
+.exercise-image {
+  display: center;
+  margin-top: 10px;
+  margin-bottom: -20px;
+  width: 80%;
+  height: 150px;
+  
+}
+
+.exercise-content {
+  padding: 1.25rem;
+}
+
+.exercise-card h2 {
+  margin: 0 0 0.5rem;
+}
+
+.muscle-group {
+  color: #646cff;
+  font-weight: 600;
+}
+
+.error-message {
+  color: #c62828;
+}
