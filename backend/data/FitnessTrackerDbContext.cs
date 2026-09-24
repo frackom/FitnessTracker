@@ -10,6 +10,9 @@ public class FitnessTrackerDbContext : DbContext
     }
 
     public DbSet<Exercise> Exercises => Set<Exercise>();
+    public DbSet<Routine> Routines => Set<Routine>();
+    public DbSet<RoutineExercise> RoutineExercises =>
+        Set<RoutineExercise>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,5 +34,22 @@ public class FitnessTrackerDbContext : DbContext
                 ImageUrl = "/assets/ExerciseImages/squat.jpg"
             }
         );
+
+        modelBuilder.Entity<RoutineExercise>()
+            .HasKey(routineExercise => new
+            {
+                routineExercise.RoutineId,
+                routineExercise.ExerciseId
+            });
+
+        modelBuilder.Entity<RoutineExercise>()
+            .HasOne(routineExercise => routineExercise.Routine)
+            .WithMany(routine => routine.RoutineExercises)
+            .HasForeignKey(routineExercise => routineExercise.RoutineId);
+
+        modelBuilder.Entity<RoutineExercise>()
+            .HasOne(routineExercise => routineExercise.Exercise)
+            .WithMany()
+            .HasForeignKey(routineExercise => routineExercise.ExerciseId);
     }
 }
