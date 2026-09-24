@@ -1,5 +1,7 @@
-﻿using FitnessTracker.Api.Models;
+﻿using FitnessTracker.Api.Data;
+using FitnessTracker.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessTracker.Api.Controllers;
 
@@ -7,38 +9,28 @@ namespace FitnessTracker.Api.Controllers;
 [Route("api/[controller]")]
 public class ExercisesController : ControllerBase
 {
-    private static readonly List<Exercise> Exercises =
-    [
-        new Exercise
-        {
-            Id = 1,
-            Name = "Bench Press",
-            MuscleGroup = "Chest",
-            Description = "Barbell pressing exercise",
-            ImageUrl = "/assets/ExerciseImages/chestpress.jpg"
-        },
-        new Exercise
-        {
-            Id = 2,
-            Name = "Squat",
-            MuscleGroup = "Legs",
-            Description = "Compound lower-body exercise",
-            ImageUrl = "/assets/ExerciseImages/squat.jpg"
-        }
-    ];
+
+    private readonly FitnessTrackerDbContext _context;
+
+    public ExercisesController(FitnessTrackerDbContext context)
+    {
+        _context = context;
+    }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Exercise>> GetExercises()
+    public async Task<ActionResult<IEnumerable<Exercise>>> GetExercises()
     {
-        return Ok(Exercises);
+        List<Exercise> exercises =
+            await _context.Exercises.ToListAsync();
+
+        return Ok(exercises);
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<Exercise> GetExercise(int id)
+    public async Task<ActionResult<Exercise>> GetExercise(int id)
     {
-        Exercise? exercise = Exercises.FirstOrDefault(
-            exercise => exercise.Id == id
-        );
+        Exercise? exercise =
+            await _context.Exercises.FindAsync(id);
 
         if (exercise is null)
         {
