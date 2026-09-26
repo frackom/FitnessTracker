@@ -1,0 +1,73 @@
+.exercise-card {
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #d8d8d8;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+}
+
+.exercise-card-image {
+  display: block;
+  width: 90%;
+  height: 500px;
+  margin: 10px auto -10px auto;
+  object-fit: cover;
+  object-position: center;
+}
+
+.exercise-card-content {
+  display: center;
+  flex: 1;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 1.25rem;
+}
+
+.exercise-card-content h2 {
+  color: #3038c4;
+  text-decoration: underline;
+}
+
+.exercise-card-muscle {
+  color: #646cff;
+  font-weight: 600;
+}
+
+.exercise-card-description {
+  color: #333333;
+}
+
+.exercise-card-action {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.exercise-card-action button {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background-color: #646cff;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.exercise-card-action button:hover:not(:disabled) {
+  background-color: #535bf2;
+}
+
+.exercise-card-action button:disabled {
+  background-color: #8a8a8a;
+  cursor: default;
+}
+
+@media (max-width: 700px) {
+  .exercise-card-image {
+    height: 350px;
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getExercises } from "../services/exercisesApi";
 import { createRoutine } from "../services/routinesApi";
+import ExerciseCard from "../components/ExerciseCard.jsx";
 import "../styles/RoutineCreationPage.css";
 
 function RoutineCreationPage() {
@@ -165,24 +166,14 @@ function RoutineCreationPage() {
             <div className="routine-exercise-grid">
               {availableExercises.map((exercise) => {
                 const isSelected = selectedExercises.some(
-                  (selected) =>
-                    selected.exerciseId === exercise.id
+                  (selected) => selected.exerciseId === exercise.id
                 );
 
                 return (
-                  <article
-                    className="exercise-option"
+                  <ExerciseCard
                     key={exercise.id}
-                  >
-                    <img
-                      src={exercise.imageUrl}
-                      alt={exercise.name}
-                    />
-
-                    <div>
-                      <h3>{exercise.name}</h3>
-                      <p>{exercise.muscleGroup}</p>
-
+                    exercise={exercise}
+                    action={
                       <button
                         type="button"
                         disabled={isSelected}
@@ -190,8 +181,8 @@ function RoutineCreationPage() {
                       >
                         {isSelected ? "Added" : "Add exercise"}
                       </button>
-                    </div>
-                  </article>
+                    }
+                  />
                 );
               })}
             </div>

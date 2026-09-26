@@ -5,7 +5,7 @@
 }
 
 .exercises-page h1 {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .exercise-grid {
@@ -14,36 +14,12 @@
   gap: 1rem;
 }
 
-.exercise-card {
-  overflow: hidden;
-  border: 1px solid #d8d8d8;
-  border-radius: 10px;
-  background-color: white;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
-}
-
-.exercise-image {
-  display: center;
-  margin-top: 10px;
-  margin-bottom: -20px;
-  width: 80%;
-  height: 150px;
-  
-}
-
-.exercise-content {
-  padding: 1.25rem;
-}
-
-.exercise-card h2 {
-  margin: 0 0 0.5rem;
-}
-
-.muscle-group {
-  color: #646cff;
-  font-weight: 600;
-}
-
-.error-message {
+.exercises-page-error {
   color: #c62828;
+}
+
+@media (max-width: 700px) {
+  .exercise-grid {
+    grid-template-columns: 1fr;
+  }
 }

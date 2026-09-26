@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import ExerciseCard from "../components/ExerciseCard.jsx";
+import { getExercises } from "../services/exercisesApi.js";
 import "../styles/ExercisesPage.css";
 
 function ExercisesPage() {
@@ -9,18 +11,10 @@ function ExercisesPage() {
   useEffect(() => {
     async function loadExercises() {
       try {
-        const response = await fetch(
-          "https://localhost:7022/api/exercises"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to load exercises");
-        }
-
-        const data = await response.json();
+        const data = await getExercises();
         setExercises(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (loadError) {
+        setError(loadError.message);
       } finally {
         setIsLoading(false);
       }
@@ -34,7 +28,7 @@ function ExercisesPage() {
   }
 
   if (error) {
-    return <p className="error-message">{error}</p>;
+    return <p className="exercises-page-error">{error}</p>;
   }
 
   return (
@@ -43,19 +37,10 @@ function ExercisesPage() {
 
       <div className="exercise-grid">
         {exercises.map((exercise) => (
-            <article className="exercise-card" key={exercise.id}>
-            <img
-                className="exercise-image"
-                src={exercise.imageUrl || "/images/exercises/exercise-placeholder.jpg"}
-                alt={`${exercise.name} demonstration`}
-            />
-
-            <div className="exercise-content">
-                <h2>{exercise.name}</h2>
-                <p className="muscle-group">{exercise.muscleGroup}</p>
-                <p>{exercise.description}</p>
-            </div>
-            </article>
+          <ExerciseCard
+            key={exercise.id}
+            exercise={exercise}
+          />
         ))}
       </div>
     </main>
