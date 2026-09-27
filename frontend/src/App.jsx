@@ -16,6 +16,7 @@ function App() {
         <Route path="/routines" element={<RoutinesPage />} />
         <Route path="/routines/create" element={<RoutineCreationPage />} />
         <Route path="/routines/:id" element={<RoutineDetailsPage />} />
+        <Route path="/routines/:id/edit" element={<RoutineCreationPage />} />
       </Routes>
     </BrowserRouter>
   );

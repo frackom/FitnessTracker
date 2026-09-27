@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { getExercises } from "../services/exercisesApi";
-import { createRoutine } from "../services/routinesApi";
+import { createRoutine, getRoutineById, updateRoutine } from "../services/routinesApi";
 import ExerciseCard from "../components/ExerciseCard.jsx";
 import "../styles/RoutineCreationPage.css";
 
 function RoutineCreationPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditing = Boolean(id);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [availableExercises, setAvailableExercises] = useState([]);
@@ -16,10 +21,38 @@ function RoutineCreationPage() {
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    async function loadExercises() {
+    async function loadPageData() {
       try {
-        const exercises = await getExercises();
+        setIsLoading(true);
+        setError("");
+
+        const [exercises, routine] = await Promise.all([
+          getExercises(),
+          isEditing ? getRoutineById(id) : Promise.resolve(null),
+        ]);
+
         setAvailableExercises(exercises);
+
+        if (routine) {
+          setName(routine.name);
+          setDescription(routine.description ?? "");
+
+          const orderedExercises = [...routine.exercises].sort(
+            (firstExercise, secondExercise) =>
+              firstExercise.position - secondExercise.position
+          );
+
+          setSelectedExercises(
+            orderedExercises.map((exercise) => ({
+              exerciseId: exercise.exerciseId,
+              name: exercise.name,
+              muscleGroup: exercise.muscleGroup,
+              imageUrl: exercise.imageUrl,
+              targetSets: exercise.targetSets,
+              targetReps: exercise.targetReps,
+            }))
+          );
+        }
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -27,8 +60,8 @@ function RoutineCreationPage() {
       }
     }
 
-    loadExercises();
-  }, []);
+    loadPageData();
+  }, [id, isEditing]);
 
   function addExercise(exercise) {
     const isAlreadySelected = selectedExercises.some(
@@ -102,6 +135,13 @@ function RoutineCreationPage() {
     try {
       setIsSubmitting(true);
 
+      if (isEditing) {
+        const updatedRoutine = await updateRoutine(id, request);
+
+        navigate(`/routines/${updatedRoutine.id}`);
+        return;
+      }
+
       const createdRoutine = await createRoutine(request);
 
       setSuccessMessage(
@@ -121,7 +161,7 @@ function RoutineCreationPage() {
   return (
     <main className="routine-builder">
       <header>
-        <h1>Create a routine</h1>
+        <h1>{isEditing ? "Edit routine": "Create a routine"}</h1>
         <p>
           Select exercises and choose the target sets and repetitions.
         </p>
@@ -264,7 +304,7 @@ function RoutineCreationPage() {
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Saving..." : "Save routine"}
+          {isSubmitting ? "Saving..." : isEditing ? "Update Routine" : "Save routine"}
         </button>
       </form>
     </main>

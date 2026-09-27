@@ -1,16 +1,22 @@
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-  padding: 1rem 2rem;
+  width: 100%;
   border-bottom: 1px solid #2d2f38;
   background-color: #1c1d24;
 }
 
+.navbar-inner {
+  display: flex;
+  width: 95%;
+  min-height: 64px;
+  margin: 0 auto;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
 .navbar-brand,
 .navbar-links a {
-  color: white;
+  color: #ffffff;
   text-decoration: none;
 }
 
@@ -21,6 +27,7 @@
 
 .navbar-links {
   display: flex;
+  align-items: center;
   gap: 1.5rem;
 }
 
@@ -34,7 +41,8 @@
 }
 
 @media (max-width: 650px) {
-  .navbar {
+  .navbar-inner {
+    padding: 1rem 0;
     align-items: flex-start;
     flex-direction: column;
   }

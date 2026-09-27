@@ -20,7 +20,7 @@ The intended user flow is:
 - Routine database models and relationships
 - Routine creation and retrieval endpoints
 - Routine request validation
-- React routine builder
+- Routine CRUD working with React frontend
 
 ### Planned
 

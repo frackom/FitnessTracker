@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getRoutineById } from "../services/routinesApi.js";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { getRoutineById, deleteRoutine } from "../services/routinesApi.js";
 import "../styles/RoutineDetailsPage.css";
 
 function RoutineDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [routine, setRoutine] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function loadRoutine() {
@@ -25,8 +28,31 @@ function RoutineDetailsPage() {
       }
     }
 
+
     loadRoutine();
   }, [id]);
+
+  async function handleDelete() {
+    const shouldDelete = window.confirm(
+      `Are you sure you want to delete "${routine.name}"?`
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      setDeleteError("");
+
+      await deleteRoutine(routine.id);
+
+      navigate("/routines");
+    } catch (deleteError) {
+      setDeleteError(deleteError.message);
+      setIsDeleting(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -71,15 +97,39 @@ function RoutineDetailsPage() {
           {routine.description && <p>{routine.description}</p>}
         </div>
 
-        <button
-          className="routine-details-start"
-          type="button"
-          disabled
-          title="Workout logging will be added next"
-        >
-          Start workout
-        </button>
+        <div className="routine-details-actions">
+          <button
+            className="routine-details-delete"
+            type="button"
+            disabled={isDeleting}
+            onClick={handleDelete}
+          >
+            {isDeleting ? "Deleting..." : "Delete routine"}
+          </button>
+
+          <Link
+            className="routine-details-edit"
+            to={`/routines/${routine.id}/edit`}
+          >
+            Edit routine
+          </Link>
+
+          <button
+            className="routine-details-start"
+            type="button"
+            disabled
+            title="Workout logging will be added next"
+          >
+            Start workout
+          </button>
+        </div>
       </header>
+
+      {deleteError && (
+        <p className="routine-details-delete-error">
+          {deleteError}
+        </p>
+      )}
 
       <section className="routine-details-summary">
         <span>

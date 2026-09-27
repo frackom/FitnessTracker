@@ -49,3 +49,46 @@ export async function createRoutine(routine) {
 
   return response.json();
 }
+
+export async function deleteRoutine(id) {
+  const response = await fetch(`${API_URL}/api/routines/${id}`, {
+    method: "DELETE",
+  });
+
+  if (response.status === 404) {
+    throw new Error("Routine not found.");
+  }
+
+  if (!response.ok) {
+    throw new Error("Unable to delete the routine.");
+  }
+}
+
+export async function updateRoutine(id, routine) {
+  const response = await fetch(`${API_URL}/api/routines/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(routine),
+  });
+
+  if (response.status === 404) {
+    throw new Error("Routine not found.");
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+
+    if (errorData?.errors) {
+      const messages = Object.values(errorData.errors).flat();
+      throw new Error(messages.join(" "));
+    }
+
+    throw new Error(
+      errorData?.message ?? "Unable to update the routine."
+    );
+  }
+
+  return response.json();
+}
