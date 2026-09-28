@@ -32,7 +32,35 @@ public class FitnessTrackerDbContext : DbContext
                 MuscleGroup = "Legs",
                 Description = "Compound lower-body exercise",
                 ImageUrl = "/assets/ExerciseImages/squat.jpg"
+            },
+            new Exercise
+            {
+                Id = 3,
+                Name = "Lat Pulldown",
+                MuscleGroup = "Back",
+                Description =
+                    "Cable pulling exercise",
+                ImageUrl = "/assets/ExerciseImages/latpulldown.jpg"
+            },
+            new Exercise
+            {
+                Id = 4,
+                Name = "Chest Fly",
+                MuscleGroup = "Chest",
+                Description =
+                    "Machine chest exercise",
+                ImageUrl = "/assets/ExerciseImages/chestfly.jpg"
+            },
+            new Exercise
+            {
+                Id = 5,
+                Name = "Leg Press",
+                MuscleGroup = "Legs",
+                Description =
+                    "Machine lower-body exercise",
+                ImageUrl = "/assets/ExerciseImages/legpress.jpg"
             }
+
         );
 
         modelBuilder.Entity<RoutineExercise>()

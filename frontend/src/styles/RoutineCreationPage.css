@@ -1,0 +1,100 @@
+.routine-builder {
+  width: calc(100% - 2rem);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.routine-builder header {
+  margin-bottom: 2rem;
+}
+
+.routine-builder section {
+  margin-bottom: 2rem;
+}
+
+.routine-details {
+  display: grid;
+  gap: 1rem;
+}
+
+.routine-details label,
+.selected-exercise label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.routine-details input,
+.routine-details textarea,
+.selected-exercise input {
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.routine-exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.selected-exercises {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.selected-exercise {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.selected-exercise > div {
+  display: grid;
+}
+
+.exercise-position {
+  color: #646cff;
+  font-weight: 600;
+}
+
+.remove-button {
+  color: #a71919;
+  background: #f6dede;
+}
+
+.save-routine-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.message {
+  padding: 0.8rem;
+  border-radius: 6px;
+}
+
+.error-message {
+  color: #9f1515;
+  background: #f8dddd;
+}
+
+.success-message {
+  color: #176b2c;
+  background: #def3e3;
+}
+
+@media (max-width: 700px) {
+  .selected-exercise {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .selected-exercise > div {
+    grid-column: 1 / -1;
+  }
+}

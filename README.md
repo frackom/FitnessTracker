@@ -20,10 +20,10 @@ The intended user flow is:
 - Routine database models and relationships
 - Routine creation and retrieval endpoints
 - Routine request validation
+- Routine CRUD working with React frontend
 
 ### Planned
 
-- React routine builder
 - Workout and set logging
 - Workout history and progress charts
 - User accounts and authentication

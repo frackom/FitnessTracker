@@ -154,4 +154,194 @@ public class RoutinesController : ControllerBase
                 routine.Description
             });
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult> DeleteRoutine(int id)
+    {
+        var routine = await _context.Routines
+            .Include(routine => routine.RoutineExercises)
+            .SingleOrDefaultAsync(routine => routine.Id == id);
+
+        if (routine is null)
+        {
+            return NotFound(new
+            {
+                message = $"Routine with ID {id} was not found."
+            });
+        }
+
+        _context.RoutineExercises.RemoveRange(
+            routine.RoutineExercises
+        );
+
+        _context.Routines.Remove(routine);
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<RoutineResponse>> UpdateRoutine(
+    int id,
+    UpdateRoutineRequest request)
+    {
+        var routine = await _context.Routines
+            .Include(routine => routine.RoutineExercises)
+            .SingleOrDefaultAsync(routine => routine.Id == id);
+
+        if (routine is null)
+        {
+            return NotFound(new
+            {
+                message = $"Routine with ID {id} was not found."
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new
+            {
+                message = "A routine name is required."
+            });
+        }
+
+        if (request.Exercises.Count == 0)
+        {
+            return BadRequest(new
+            {
+                message = "A routine must contain at least one exercise."
+            });
+        }
+
+        var requestedExerciseIds = request.Exercises
+            .Select(exercise => exercise.ExerciseId)
+            .ToList();
+
+        var containsDuplicates =
+            requestedExerciseIds.Distinct().Count() !=
+            requestedExerciseIds.Count;
+
+        if (containsDuplicates)
+        {
+            return BadRequest(new
+            {
+                message = "A routine cannot contain the same exercise more than once."
+            });
+        }
+
+        var exercises = await _context.Exercises
+            .Where(exercise =>
+                requestedExerciseIds.Contains(exercise.Id))
+            .ToListAsync();
+
+        if (exercises.Count != requestedExerciseIds.Count)
+        {
+            var existingIds = exercises
+                .Select(exercise => exercise.Id)
+                .ToHashSet();
+
+            var missingIds = requestedExerciseIds
+                .Where(id => !existingIds.Contains(id));
+
+            return BadRequest(new
+            {
+                message =
+                    $"Exercises were not found: {string.Join(", ", missingIds)}."
+            });
+        }
+
+        routine.Name = request.Name.Trim();
+
+        routine.Description =
+            string.IsNullOrWhiteSpace(request.Description)
+                ? string.Empty
+                : request.Description.Trim();
+
+        var requestedExerciseIdSet = requestedExerciseIds.ToHashSet();
+
+        var removedRoutineExercises = routine.RoutineExercises
+            .Where(routineExercise =>
+                !requestedExerciseIdSet.Contains(
+                    routineExercise.ExerciseId))
+            .ToList();
+
+        _context.RoutineExercises.RemoveRange(
+            removedRoutineExercises
+        );
+
+        var existingRoutineExercises = routine.RoutineExercises
+            .ToDictionary(
+                routineExercise => routineExercise.ExerciseId
+            );
+
+        for (var index = 0; index < request.Exercises.Count; index++)
+        {
+            var requestedExercise = request.Exercises[index];
+
+            if (existingRoutineExercises.TryGetValue(
+                requestedExercise.ExerciseId,
+                out var existingRoutineExercise))
+            {
+                existingRoutineExercise.Position = index + 1;
+                existingRoutineExercise.TargetSets =
+                    requestedExercise.TargetSets;
+                existingRoutineExercise.TargetReps =
+                    requestedExercise.TargetReps;
+            }
+            else
+            {
+                routine.RoutineExercises.Add(
+                    new RoutineExercise
+                    {
+                        RoutineId = routine.Id,
+                        ExerciseId =
+                            requestedExercise.ExerciseId,
+                        Position = index + 1,
+                        TargetSets =
+                            requestedExercise.TargetSets,
+                        TargetReps =
+                            requestedExercise.TargetReps
+                    }
+                );
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        var exerciseDictionary = exercises.ToDictionary(
+            exercise => exercise.Id
+        );
+
+        var response = new RoutineResponse
+        {
+            Id = routine.Id,
+            Name = routine.Name,
+            Description = routine.Description,
+            Exercises = request.Exercises
+                .Select((requestedExercise, index) =>
+                {
+                    var exercise =
+                        exerciseDictionary[
+                            requestedExercise.ExerciseId
+                        ];
+
+                    return new RoutineExerciseResponse
+                    {
+                        ExerciseId = exercise.Id,
+                        Name = exercise.Name,
+                        MuscleGroup = exercise.MuscleGroup,
+                        ImageUrl = exercise.ImageUrl,
+                        Position = index + 1,
+                        TargetSets =
+                            requestedExercise.TargetSets,
+                        TargetReps =
+                            requestedExercise.TargetReps
+                    };
+                })
+                .ToList()
+        };
+
+        return Ok(response);
+    }
 }
