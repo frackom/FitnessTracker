@@ -19,11 +19,14 @@ permissions:
 
 jobs:
   backend:
-    name: Build ASP.NET backend
+    name: Backend build and tests
     runs-on: ubuntu-latest
 
+    env:
+      ASPNETCORE_ENVIRONMENT: Testing
+
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Set up .NET
@@ -31,14 +34,25 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Restore backend dependencies
-        run: dotnet restore backend/FitnessTracker.Api.csproj
-
-      - name: Build backend
+      - name: Restore backend tests
         run: >
-          dotnet build backend/FitnessTracker.Api.csproj
+          dotnet restore
+          backend/FitnessTracker.Api.Tests/FitnessTracker.Api.Tests.csproj
+
+      - name: Build backend tests
+        run: >
+          dotnet build
+          backend/FitnessTracker.Api.Tests/FitnessTracker.Api.Tests.csproj
           --configuration Release
           --no-restore
+
+      - name: Run backend tests
+        run: >
+          dotnet test
+          backend/FitnessTracker.Api.Tests/FitnessTracker.Api.Tests.csproj
+          --configuration Release
+          --no-build
+          --logger "console;verbosity=normal"
 
   frontend:
     name: Build React frontend

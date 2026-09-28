@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../backend/FitnessTracker.Api.csproj" />
+  <Project Path="../backend/FitnessTracker.Api.Tests/FitnessTracker.Api.Tests.csproj" />
+</Solution>
