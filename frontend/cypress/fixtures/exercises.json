@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Bench Press",
+    "muscleGroup": "Chest",
+    "description": "A compound exercise targeting the chest.",
+    "imageUrl": "/assets/ExerciseImages/benchpress.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Squat",
+    "muscleGroup": "Legs",
+    "description": "A compound exercise targeting the lower body.",
+    "imageUrl": "/assets/ExerciseImages/squat.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Lat Pulldown",
+    "muscleGroup": "Back",
+    "description": "A pulling exercise targeting the back.",
+    "imageUrl": "/assets/ExerciseImages/latpulldown.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Chest Fly",
+    "muscleGroup": "Chest",
+    "description": "An isolation exercise targeting the chest.",
+    "imageUrl": "/assets/ExerciseImages/chestfly.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Leg Press",
+    "muscleGroup": "Legs",
+    "description": "A machine exercise targeting the lower body.",
+    "imageUrl": "/assets/ExerciseImages/legpress.jpg"
+  }
+]
