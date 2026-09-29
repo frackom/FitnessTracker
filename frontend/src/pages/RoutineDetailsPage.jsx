@@ -114,14 +114,12 @@ function RoutineDetailsPage() {
             Edit routine
           </Link>
 
-          <button
+          <Link
             className="routine-details-start"
-            type="button"
-            disabled
-            title="Workout logging will be added next"
+            to={`/routines/${routine.id}/workout`}
           >
             Start workout
-          </button>
+          </Link>
         </div>
       </header>
 

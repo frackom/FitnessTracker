@@ -4,6 +4,8 @@ import ExercisesPage from "./pages/ExercisesPage.jsx";
 import RoutineCreationPage from "./pages/RoutineCreationPage.jsx";
 import RoutinesPage from "./pages/RoutinesPage.jsx";
 import RoutineDetailsPage from "./pages/RoutineDetailsPage.jsx";
+import WorkoutPage from "./pages/WorkoutPage.jsx";
+import WorkoutHistoryPage from "./pages/WorkoutHistoryPage.jsx";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/routines/create" element={<RoutineCreationPage />} />
         <Route path="/routines/:id" element={<RoutineDetailsPage />} />
         <Route path="/routines/:id/edit" element={<RoutineCreationPage />} />
+        <Route path="/workouts" element={<WorkoutHistoryPage />} />
+        <Route path="/routines/:id/workout" element={<WorkoutPage />} />
       </Routes>
     </BrowserRouter>
   );
