@@ -54,6 +54,7 @@ public class WorkoutsController(FitnessTrackerDbContext context) : ControllerBas
 
         var workout = new Workout
         {
+            RoutineId = routine.Id,
             RoutineName = routine.Name,
             CompletedAtUtc = DateTime.UtcNow,
             Sets = request.Sets.Select(set => new WorkoutSet
