@@ -33,18 +33,21 @@ describe("Workout logging", () => {
 
     cy.visit("/routines/12/workout");
     cy.wait("@getRoutine");
+    cy.get('input[type="checkbox"]').should("not.exist");
+    cy.get('.workout-set input[type="number"]').should((inputs) => {
+      Array.from(inputs).forEach((input) => expect(input.value).to.equal(""));
+    });
     cy.contains("h1", "Strength").should("be.visible");
 
     cy.contains(".workout-exercise", "Bench Press").within(() => {
       cy.get(".workout-set").first().within(() => {
         cy.contains("label", "Reps").find("input").clear().type("7");
         cy.contains("label", "Weight (kg)").find("input").type("42.5");
-        cy.get('input[type="checkbox"]').check();
       });
     });
     cy.contains(".workout-exercise", "Squat").within(() => {
+      cy.contains("label", "Reps").find("input").type("6");
       cy.contains("label", "Weight (kg)").find("input").type("0");
-      cy.get('input[type="checkbox"]').check();
     });
     cy.contains("button", "Complete workout").click();
     cy.wait("@saveWorkout");
@@ -61,8 +64,12 @@ describe("Workout logging", () => {
     cy.intercept("GET", "**/api/routines/12", routine);
     cy.intercept("POST", "**/api/workouts", cy.stub().as("saveRequest"));
     cy.visit("/routines/12/workout");
+    cy.contains(".workout-exercise", "Bench Press").find(".workout-set").first().within(() => {
+      cy.contains("label", "Reps").find("input").type("0");
+      cy.contains("label", "Weight (kg)").find("input").type("40");
+    });
     cy.contains("button", "Complete workout").click();
-    cy.contains('[role="alert"]', "Complete at least one set").should("be.visible");
+    cy.contains('[role="alert"]', "Enter reps and weight for at least one set").should("be.visible");
     cy.get("@saveRequest").should("not.have.been.called");
   });
 
@@ -74,8 +81,8 @@ describe("Workout logging", () => {
     }).as("saveWorkout");
     cy.visit("/routines/12/workout");
     cy.contains(".workout-exercise", "Bench Press").find(".workout-set").first().within(() => {
+      cy.contains("label", "Reps").find("input").type("8");
       cy.contains("label", "Weight (kg)").find("input").type("50");
-      cy.get('input[type="checkbox"]').check();
     });
     cy.contains("button", "Complete workout").click();
     cy.wait("@saveWorkout");
@@ -84,5 +91,16 @@ describe("Workout logging", () => {
       .find('input[type="number"]')
       .eq(1)
       .should("have.value", "50");
+  });
+  it("requires weight when reps are entered", () => {
+    cy.intercept("GET", "**/api/routines/12", routine);
+    cy.intercept("POST", "**/api/workouts", cy.stub().as("saveRequest"));
+    cy.visit("/routines/12/workout");
+    cy.contains(".workout-exercise", "Bench Press").find(".workout-set").first().within(() => {
+      cy.contains("label", "Reps").find("input").type("8");
+    });
+    cy.contains("button", "Complete workout").click();
+    cy.contains('[role="alert"]', "Sets with reps need valid reps and weight").should("be.visible");
+    cy.get("@saveRequest").should("not.have.been.called");
   });
 });

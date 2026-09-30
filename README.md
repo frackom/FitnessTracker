@@ -23,9 +23,9 @@ The intended user flow is:
 - Routine CRUD working with React frontend
 - Automated testing
 - Workout set logging and history
+- Workout progress charts
 
 ### Planned
 
-- Workout progress charts
 - User accounts and authentication
 - Automated deployment

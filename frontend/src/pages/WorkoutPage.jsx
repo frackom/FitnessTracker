@@ -21,9 +21,8 @@ function WorkoutPage() {
         Array.from({ length: exercise.targetSets }, (_, index) => ({
           exerciseId: exercise.exerciseId,
           setNumber: index + 1,
-          reps: String(exercise.targetReps),
+          reps: "",
           weightKg: "",
-          completed: false,
         }))
       ));
     }).catch((requestError) => { if (active) setError(requestError.message); });
@@ -39,15 +38,15 @@ function WorkoutPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const completed = sets.filter((set) => set.completed);
+    const completed = sets.filter((set) => set.reps.trim() !== "" && Number(set.reps) !== 0);
     if (!completed.length) {
-      setError("Complete at least one set before saving.");
+      setError("Enter reps and weight for at least one set before saving.");
       return;
     }
     if (completed.some((set) => !Number.isInteger(Number(set.reps)) ||
-      Number(set.reps) < 1 || set.weightKg === "" ||
-      !Number.isFinite(Number(set.weightKg)) || Number(set.weightKg) < 0)) {
-      setError("Completed sets need valid reps and weight (0 kg is allowed).");
+      Number(set.reps) < 1 || Number(set.reps) > 1000 || set.weightKg.trim() === "" ||
+      !Number.isFinite(Number(set.weightKg)) || Number(set.weightKg) < 0 || Number(set.weightKg) > 10000)) {
+      setError("Sets with reps need valid reps and weight (0 kg is allowed).");
       return;
     }
     try {
@@ -73,8 +72,8 @@ function WorkoutPage() {
     <main className="workout-page">
       <Link to={`/routines/${id}`}>← Back to routine</Link>
       <h1>{routine.name}</h1>
-      <p>Enter the weight and reps you actually performed, then check each completed set.</p>
-      <form onSubmit={handleSubmit}>
+      <p>Enter the reps and weight you performed. Leave reps blank or enter 0 to skip a set.</p>
+      <form onSubmit={handleSubmit} noValidate>
         {[...routine.exercises].sort((a, b) => a.position - b.position).map((exercise) => (
           <section className="workout-exercise" key={exercise.exerciseId}>
             <h2>{exercise.name}</h2>
@@ -82,13 +81,11 @@ function WorkoutPage() {
             {sets.filter((set) => set.exerciseId === exercise.exerciseId).map((set) => (
               <div className="workout-set" key={set.setNumber}>
                 <span>Set {set.setNumber}</span>
-                <label>Reps <input type="number" min="1" max="1000" value={set.reps}
+                <label>Reps <input type="number" min="0" max="1000" step="1" value={set.reps} placeholder={String(exercise.targetReps)}
                   onChange={(event) => updateSet(set.exerciseId, set.setNumber, { reps: event.target.value })} /></label>
                 <label>Weight (kg) <input type="number" min="0" max="10000" step="0.01"
                   value={set.weightKg} placeholder="0"
                   onChange={(event) => updateSet(set.exerciseId, set.setNumber, { weightKg: event.target.value })} /></label>
-                <label className="workout-done"><input type="checkbox" checked={set.completed}
-                  onChange={(event) => updateSet(set.exerciseId, set.setNumber, { completed: event.target.checked })} /> Done</label>
               </div>
             ))}
           </section>
