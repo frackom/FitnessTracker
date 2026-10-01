@@ -1,0 +1,96 @@
+.progress-page {
+  width: min(1000px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.progress-page a {
+  color: #646cff;
+}
+
+.progress-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 350px;
+  margin: 2rem 0;
+  font-weight: 600;
+}
+
+.progress-select select {
+  padding: 0.75rem;
+  border: 1px solid #8a8a8a;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.progress-panel {
+  padding: 1.5rem;
+  border: 1px solid #8a8a8a;
+  border-radius: 10px;
+}
+
+.progress-panel h2 {
+  margin-top: 0;
+}
+
+.progress-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  overflow: visible;
+}
+
+.progress-chart text {
+  fill: currentColor;
+  font-size: 13px;
+}
+
+.progress-grid {
+  stroke: currentColor;
+  stroke-opacity: 0.2;
+}
+
+.progress-line {
+  stroke: #646cff;
+  stroke-width: 3;
+}
+
+.progress-point {
+  fill: #646cff;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.progress-note {
+  font-size: 0.9rem;
+}
+
+.progress-table-wrapper {
+  overflow-x: auto;
+}
+
+.progress-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.progress-table caption {
+  padding: 1rem 0;
+  text-align: left;
+  font-weight: 600;
+}
+
+.progress-table th,
+.progress-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #8a8a8a;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .progress-panel {
+    padding: 0.75rem;
+  }
+}

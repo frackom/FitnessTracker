@@ -21,10 +21,11 @@ The intended user flow is:
 - Routine creation and retrieval endpoints
 - Routine request validation
 - Routine CRUD working with React frontend
+- Automated testing
+- Workout set logging and history
+- Workout progress charts
 
 ### Planned
 
-- Workout and set logging
-- Workout history and progress charts
 - User accounts and authentication
-- Automated testing and deployment
+- Automated deployment

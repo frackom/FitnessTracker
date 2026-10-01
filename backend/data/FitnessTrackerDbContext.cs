@@ -13,6 +13,8 @@ public class FitnessTrackerDbContext : DbContext
     public DbSet<Routine> Routines => Set<Routine>();
     public DbSet<RoutineExercise> RoutineExercises =>
         Set<RoutineExercise>();
+    public DbSet<Workout> Workouts => Set<Workout>();
+    public DbSet<WorkoutSet> WorkoutSets => Set<WorkoutSet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,5 +81,15 @@ public class FitnessTrackerDbContext : DbContext
             .HasOne(routineExercise => routineExercise.Exercise)
             .WithMany()
             .HasForeignKey(routineExercise => routineExercise.ExerciseId);
+
+        modelBuilder.Entity<WorkoutSet>()
+            .HasOne(set => set.Workout)
+            .WithMany(workout => workout.Sets)
+            .HasForeignKey(set => set.WorkoutId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<WorkoutSet>()
+            .Property(set => set.WeightKg)
+            .HasPrecision(8, 2);
     }
 }

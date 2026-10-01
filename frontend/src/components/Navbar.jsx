@@ -13,6 +13,8 @@ function Navbar() {
           <NavLink to="/exercises">Exercises</NavLink>
           <NavLink to="/routines">My Routines</NavLink>
           <NavLink to="/routines/create">Create Routine</NavLink>
+          <NavLink to="/workouts">Workout History</NavLink>
+          <NavLink to="/progress">Progress</NavLink>
         </div>
       </div>
     </nav>

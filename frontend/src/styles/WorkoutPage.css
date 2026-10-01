@@ -1,0 +1,77 @@
+.workout-page {
+  width: min(900px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.workout-page a {
+  color: #aeb2ff;
+}
+
+.workout-page > p,
+.workout-exercise > p {
+  color: #a4a7b3;
+}
+
+.workout-exercise {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border: 1px solid #353742;
+  border-radius: 10px;
+  background-color: #1c1d24;
+}
+
+.workout-exercise h2 {
+  margin-top: 0;
+}
+
+.workout-set {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #353742;
+}
+
+.workout-set label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workout-set input[type="number"] {
+  width: 6rem;
+  padding: 0.5rem;
+  border: 1px solid #5b5d69;
+  border-radius: 5px;
+  background-color: #24252e;
+  color: #ffffff;
+}
+
+.workout-save {
+  padding: 0.85rem 1.2rem;
+  border: 0;
+  border-radius: 6px;
+  background-color: #646cff;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.workout-save:disabled {
+  opacity: 0.5;
+}
+
+.workout-error {
+  color: #ff9b9b;
+}
+
+.history-exercise {
+  padding-top: 0.8rem;
+  border-top: 1px solid #353742;
+}
+
+.history-exercise p {
+  color: #c7c9d2;
+}
