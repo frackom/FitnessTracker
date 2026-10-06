@@ -10,11 +10,9 @@ function Navbar() {
         </NavLink>
 
         <div className="navbar-links">
-          <NavLink to="/exercises">Exercises</NavLink>
-          <NavLink to="/routines">My Routines</NavLink>
-          <NavLink to="/routines/create">Create Routine</NavLink>
           <NavLink to="/workouts">Workout History</NavLink>
-          <NavLink to="/progress">Progress</NavLink>
+          <NavLink to="/routines">My Routines</NavLink>
+          <NavLink to="/progress">Track Progress</NavLink>
         </div>
       </div>
     </nav>
