@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getRoutineById } from "../services/routinesApi.js";
 import { completeWorkout } from "../services/workoutsApi.js";
-import "../styles/WorkoutPage.css";
+import {
+  Alert, Button, Card,
+  Container, Stack, TextField,
+  Typography, Box
+} from "@mui/material";
 
 function WorkoutPage() {
   const { id } = useParams();
@@ -65,36 +69,172 @@ function WorkoutPage() {
     }
   }
 
-  if (!routine && !error) return <main className="workout-page"><p>Loading workout...</p></main>;
-  if (!routine) return <main className="workout-page"><p role="alert">{error}</p><Link to="/routines">Back to routines</Link></main>;
-
+if (!routine && !error) {
   return (
-    <main className="workout-page">
-      <Link to={`/routines/${id}`}>← Back to routine</Link>
-      <h1>{routine.name}</h1>
-      <p>Enter the reps and weight you performed. Leave reps blank or enter 0 to skip a set.</p>
-      <form onSubmit={handleSubmit} noValidate>
-        {[...routine.exercises].sort((a, b) => a.position - b.position).map((exercise) => (
-          <section className="workout-exercise" key={exercise.exerciseId}>
-            <h2>{exercise.name}</h2>
-            <p>Target: {exercise.targetSets} × {exercise.targetReps}</p>
-            {sets.filter((set) => set.exerciseId === exercise.exerciseId).map((set) => (
-              <div className="workout-set" key={set.setNumber}>
-                <span>Set {set.setNumber}</span>
-                <label>Reps <input type="number" min="0" max="1000" step="1" value={set.reps} placeholder={String(exercise.targetReps)}
-                  onChange={(event) => updateSet(set.exerciseId, set.setNumber, { reps: event.target.value })} /></label>
-                <label>Weight (kg) <input type="number" min="0" max="10000" step="0.01"
-                  value={set.weightKg} placeholder="0"
-                  onChange={(event) => updateSet(set.exerciseId, set.setNumber, { weightKg: event.target.value })} /></label>
-              </div>
-            ))}
-          </section>
-        ))}
-        {error && <p role="alert" className="workout-error">{error}</p>}
-        <button className="workout-save" disabled={saving} type="submit">{saving ? "Saving..." : "Complete workout"}</button>
-      </form>
-    </main>
+    <Box
+      sx={{
+        bgcolor: "background.default",
+        color: "text.primary",
+        minHeight: "calc(100vh - 64px)",
+      }}>
+      <Container component="main" maxWidth="md" sx={{ py: 6 }}>
+        <Typography role="status" color="text.secondary">
+          Loading workout...
+        </Typography>
+      </Container>
+    </Box>
   );
+}
+
+if (!routine) {
+  return (
+    <Box
+    sx={{
+      bgcolor: "background.default",
+      color: "text.primary",
+      minHeight: "calc(100vh - 64px)",
+    }}>
+      <Container component="main" maxWidth="md" sx={{ py: 6 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+
+        <Button component={Link} to="/routines">
+          Back to routines
+        </Button>
+      </Container>
+    </Box>
+  );
+}
+
+return (
+  <Box
+    sx={{
+      bgcolor: "background.default",
+      color: "text.primary",
+      minHeight: "calc(100vh - 64px)",
+    }}>
+    <Container
+      component="main"
+      className="workout-page"
+      maxWidth="md"
+      sx={{ py: { xs: 3, md: 6 } }}
+    >
+      <Button
+        component={Link}
+        to={`/routines/${id}`}
+        sx={{ mb: 3 }}
+      >
+        ← Back to routine
+      </Button>
+
+      <Typography component="h1" variant="h4" sx={{ mb: 2 }}>
+        {routine.name}
+      </Typography>
+
+      <Typography color="text.secondary" sx={{ mb: 4 }}>
+        Enter the reps and weight you performed. Leave reps blank or
+        enter 0 to skip a set. Weight is in kg; 0 kg is allowed.
+      </Typography>
+
+      <form onSubmit={handleSubmit} noValidate>
+        {[...routine.exercises]
+          .sort((a, b) => a.position - b.position)
+          .map((exercise) => (
+            <Card
+              component="section"
+              variant="outlined"
+              className="workout-exercise"
+              key={exercise.exerciseId}
+              sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}
+            >
+              <Typography component="h2" variant="h6" sx={{ mb: 1 }}>
+                {exercise.name}
+              </Typography>
+
+              <Typography color="text.secondary" sx={{ mb: 3 }}>
+                Target: {exercise.targetSets} × {exercise.targetReps}
+              </Typography>
+
+              {sets
+                .filter((set) => set.exerciseId === exercise.exerciseId)
+                .map((set) => (
+                  <Stack
+                    className="workout-set"
+                    key={set.setNumber}
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mb: 2 }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ flexShrink: 0, minWidth: 40 }}
+                    >
+                      Set {set.setNumber}
+                    </Typography>
+
+                    <TextField
+                      label="Reps"
+                      type="number"
+                      size="small"
+                      fullWidth
+                      value={set.reps}
+                      placeholder={String(exercise.targetReps)}
+                      onChange={(event) =>
+                        updateSet(set.exerciseId, set.setNumber, {
+                          reps: event.target.value,
+                        })
+                      }
+                      slotProps={{
+                        htmlInput: { min: 0, max: 1000, step: 1 },
+                      }}
+                    />
+
+                    <TextField
+                      label="Weight (kg)"
+                      type="number"
+                      size="small"
+                      fullWidth
+                      value={set.weightKg}
+                      placeholder="0"
+                      onChange={(event) =>
+                        updateSet(set.exerciseId, set.setNumber, {
+                          weightKg: event.target.value,
+                        })
+                      }
+                      slotProps={{
+                        htmlInput: { min: 0, max: 10000, step: 0.01 },
+                      }}
+                    />
+                  </Stack>
+                ))}
+            </Card>
+          ))}
+
+        {error && (
+          <Alert
+            severity="error"
+            className="workout-error"
+            sx={{ mb: 3 }}
+          >
+            {error}
+          </Alert>
+        )}
+
+        <Button
+          className="workout-save"
+          disabled={saving}
+          type="submit"
+          variant="contained"
+          size="large"
+        >
+          {saving ? "Saving..." : "Complete workout"}
+        </Button>
+      </form>
+    </Container>
+  </Box>
+);
 }
 
 export default WorkoutPage;

@@ -56,10 +56,6 @@ function RoutinesPage() {
           sx={{ mb: 4 }}
         >
           <Box>
-            <Typography variant="overline" color="primary.main">
-              Your training plans
-            </Typography>
-
             <Typography component="h1" variant="h4">
               My Routines
             </Typography>
