@@ -1,4 +1,13 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter, Navigate,
+  Outlet, Route, Routes,
+} from "react-router-dom";
+import {
+  Alert, Box, Button,
+  CircularProgress
+} from "@mui/material";
+
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar.jsx";
 import ExercisesPage from "./pages/ExercisesPage.jsx";
 import RoutineCreationPage from "./pages/RoutineCreationPage.jsx";
@@ -8,15 +17,49 @@ import WorkoutPage from "./pages/WorkoutPage.jsx";
 import WorkoutHistoryPage from "./pages/WorkoutHistoryPage.jsx";
 import ProgressPage from "./pages/ProgressPage.jsx";
 import WelcomePage from "./pages/WelcomePage.jsx";
-import { useLocation } from "react-router-dom";
 
 function App() {
   return (
     <BrowserRouter>
-      <AppNavbar />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
 
-      <Routes>
-        <Route path="/" element={<WelcomePage />} />
+function AppRoutes() {
+  const { user, loading, sessionError } = useAuth();
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "grid", placeItems: "center", minHeight: "100vh" }}>
+        <CircularProgress aria-label="Checking your session" />
+      </Box>
+    );
+  }
+
+  if (sessionError) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">{sessionError}</Alert>
+        <Button onClick={() => window.location.reload()} sx={{ mt: 2 }}>
+          Retry
+        </Button>
+      </Box>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          user ? <Navigate to="/routines" replace /> : <WelcomePage />
+        }
+      />
+
+      <Route element={<ProtectedLayout />}>
         <Route path="/exercises" element={<ExercisesPage />} />
         <Route path="/routines" element={<RoutinesPage />} />
         <Route path="/routines/create" element={<RoutineCreationPage />} />
@@ -25,15 +68,26 @@ function App() {
         <Route path="/workouts" element={<WorkoutHistoryPage />} />
         <Route path="/routines/:id/workout" element={<WorkoutPage />} />
         <Route path="/progress" element={<ProgressPage />} />
-      </Routes>
-    </BrowserRouter>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
-function AppNavbar() {
-  const { pathname } = useLocation();
+function ProtectedLayout() {
+  const { user } = useAuth();
 
-  return pathname === "/" ? null : <Navbar />;
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
 }
 
 export default App;

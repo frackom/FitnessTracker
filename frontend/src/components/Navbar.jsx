@@ -1,7 +1,28 @@
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { Alert, AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
+  const { user, signOut } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+
+    setError("");
+    setIsLoggingOut(true);
+
+    try {
+      await signOut();
+    } catch {
+      setError("Could not log out. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
+
   return (
     <AppBar
       position="static"
@@ -16,10 +37,14 @@ function Navbar() {
       <Toolbar
         sx={{
           width: "100%",
+          boxSizing: "border-box",
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1fr auto 1fr" },
+          gridTemplateColumns: {
+            xs: "minmax(0, 1fr)",
+            lg: "minmax(0, 1fr) auto minmax(0, 1fr)",
+          },
           gap: 2,
-          py: { xs: 2, md: 0 },
+          py: 2,
         }}
       >
         <Typography
@@ -76,7 +101,46 @@ function Navbar() {
             </Button>
           ))}
         </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: { xs: "center", lg: "flex-end" },
+            gap: 2,
+            minWidth: 0,
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            title={user?.email}
+            sx={{
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {user?.email}
+          </Typography>
+
+          <Button
+            variant="outlined"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            sx={{ flexShrink: 0 }}
+          >
+            {isLoggingOut ? "Logging out…" : "Log out"}
+          </Button>
+        </Box>
       </Toolbar>
+
+      {error && (
+        <Alert severity="error" sx={{ mx: 2, mb: 2 }}>
+          {error}
+        </Alert>
+      )}
     </AppBar>
   );
 }

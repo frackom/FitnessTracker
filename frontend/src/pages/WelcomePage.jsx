@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Alert } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+import { register } from "../services/authApi";
 import {
   Box,
   Button,
@@ -14,17 +17,64 @@ import {
 
 function WelcomePage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const { signIn } = useAuth();
 
-  function handlePreview(event) {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    if (!username.trim()) return;
+    if (isSubmitting) return;
 
-    navigate("/dashboard", {
-      state: { username: username.trim() },
-    });
+    setError("");
+    setSuccess("");
+
+    if (isRegistering && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      if (isRegistering) {
+        await register(email.trim(), password);
+
+        setIsRegistering(false);
+        setPassword("");
+        setConfirmPassword("");
+        setSuccess(
+          "Account created. Log in with your email and password."
+        );
+      } else {
+        await signIn(email.trim(), password);
+        navigate("/routines", { replace: true });
+      }
+    } catch (err) {
+      setError(
+        err instanceof TypeError
+          ? "Cannot reach the backend. Check that it is running and HTTPS is trusted."
+          : err.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
+  function toggleMode() {
+    setIsRegistering((current) => !current);
+    setPassword("");
+    setConfirmPassword("");
+    setError("");
+    setSuccess("");
+  }
+
 
   return (
     <Box
@@ -199,36 +249,91 @@ function WelcomePage() {
               variant="h4"
               sx={{ mt: 1, mb: 1.5 }}
             >
-              Make every set count.
+              {isRegistering ? "Start your journey." : "Welcome back."}
             </Typography>
 
             <Typography color="text.secondary" sx={{ mb: 4 }}>
-              Your next session starts here.
+              {isRegistering
+                ? "Create an account to plan and track your training."
+                : "Log in to continue your training."}
             </Typography>
 
-            <Box component="form" onSubmit={handlePreview}>
-              <TextField
-                label="Username"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                autoComplete="username"
-                required
-                fullWidth
-                slotProps={{
-                  htmlInput: { maxLength: 50 },
-                }}
-              />
+            <Box component="form" onSubmit={handleSubmit}>
+              <Stack spacing={2.5}>
+                {error && <Alert severity="error">{error}</Alert>}
+                {success && <Alert severity="success">{success}</Alert>}
 
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                fullWidth
-                sx={{ mt: 3, py: 1.5 }}
-              >
-                Preview your dashboard →
-              </Button>
+                <TextField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="username"
+                  disabled={isSubmitting}
+                  required
+                  fullWidth
+                />
+
+                <TextField
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete={
+                    isRegistering ? "new-password" : "current-password"
+                  }
+                  helperText={
+                    isRegistering
+                      ? "Use 8–128 characters, including uppercase, lowercase, a number and a symbol."
+                      : undefined
+                  }
+                  slotProps={{
+                    htmlInput: {
+                      minLength: isRegistering ? 8 : undefined,
+                      maxLength: 128,
+                    },
+                  }}
+                  disabled={isSubmitting}
+                  required
+                  fullWidth
+                />
+
+                {isRegistering && (
+                  <TextField
+                    label="Confirm password"
+                    name="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) =>
+                      setConfirmPassword(event.target.value)
+                    }
+                    autoComplete="new-password"
+                    slotProps={{
+                      htmlInput: { minLength: 8, maxLength: 128 },
+                    }}
+                    disabled={isSubmitting}
+                    required
+                    fullWidth
+                  />
+                )}
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  disabled={isSubmitting}
+                  sx={{ py: 1.5 }}
+                >
+                  {isSubmitting
+                    ? "Please wait…"
+                    : isRegistering
+                      ? "Create account"
+                      : "Log in →"}
+                </Button>
+              </Stack>
             </Box>
 
             <Divider sx={{ my: 3 }} />
@@ -238,8 +343,20 @@ function WelcomePage() {
               color="text.secondary"
               sx={{ textAlign: "center" }}
             >
-              Visual preview · Account login is coming soon.
+              {isRegistering
+                ? "Already have an account?"
+                : "Don't have an account?"}
             </Typography>
+
+            <Button
+              type="button"
+              onClick={toggleMode}
+              disabled={isSubmitting}
+              fullWidth
+              sx={{ mt: 1 }}
+            >
+              {isRegistering ? "Log in" : "Create an account"}
+            </Button>
           </Card>
         </Box>
       </Container>

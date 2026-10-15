@@ -1,9 +1,10 @@
 ﻿using FitnessTracker.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace FitnessTracker.Api.Data;
 
-public class FitnessTrackerDbContext : DbContext
+public class FitnessTrackerDbContext : IdentityDbContext<ApplicationUser>
 {
     public FitnessTrackerDbContext(DbContextOptions<FitnessTrackerDbContext> options) : base(options)
     {
@@ -18,6 +19,9 @@ public class FitnessTrackerDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Exercise>().HasData(
             new Exercise
             {
