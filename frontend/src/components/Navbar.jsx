@@ -30,10 +30,14 @@ function Navbar() {
             justifySelf: "start",
             color: "text.primary",
             textDecoration: "none",
-            fontWeight: 700,
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
           }}
         >
-          FitnessTracker
+          Fitness
+          <Box component="span" sx={{ color: "primary.main" }}>
+            Tracker
+          </Box>
         </Typography>
 
         <Box

@@ -282,17 +282,18 @@ describe("Routines", () => {
     cy.visit("/routines/12");
     cy.wait("@getRoutine");
 
-    cy.window().then((win) => {
-      cy.stub(win, "confirm").returns(false).as("confirmDelete");
-    });
-
     cy.contains("button", "Delete routine").click();
 
-    cy.get("@confirmDelete").should(
-      "have.been.calledOnceWith",
-      'Are you sure you want to delete "Strength"?'
-    );
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains("Delete routine?").should("be.visible");
 
+      cy.contains('Are you sure you want to delete "Strength"?')
+        .should("be.visible");
+
+      cy.contains("button", /^Cancel$/).click();
+    });
+
+    cy.get('[role="dialog"]').should("not.exist");
     cy.location("pathname").should("eq", "/routines/12");
     cy.contains("h1", "Strength").should("be.visible");
     cy.get("@deleteRequest").should("not.have.been.called");
@@ -309,15 +310,65 @@ describe("Routines", () => {
     cy.visit("/routines/12");
     cy.wait("@getRoutine");
 
-    cy.window().then((win) => {
-      cy.stub(win, "confirm").returns(true);
+    cy.contains("button", "Delete routine").click();
+
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains("button", /^Delete$/).click();
     });
 
-    cy.contains("button", "Delete routine").click();
     cy.wait("@deleteRoutine");
-
     cy.location("pathname").should("eq", "/routines");
     cy.wait("@remainingRoutines");
+
+    cy.get('[role="dialog"]').should("not.exist");
+    cy.contains("No routines yet").should("be.visible");
+  });
+
+  it("shows a deletion error and allows retrying", () => {
+    cy.intercept("DELETE", "**/api/routines/12", {
+      statusCode: 500,
+      body: {},
+    }).as("failedDelete");
+
+    cy.visit("/routines/12");
+    cy.wait("@getRoutine");
+
+    cy.contains("button", "Delete routine").click();
+
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains("button", /^Delete$/).click();
+    });
+
+    cy.wait("@failedDelete");
+
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains('[role="alert"]', "Unable to delete the routine.")
+        .should("be.visible");
+
+      cy.contains("button", /^Delete$/)
+        .should("not.be.disabled");
+
+      cy.contains("button", /^Cancel$/)
+        .should("not.be.disabled");
+    });
+
+    cy.location("pathname").should("eq", "/routines/12");
+
+    cy.intercept("DELETE", "**/api/routines/12", {
+      statusCode: 204,
+    }).as("retryDelete");
+
+    cy.intercept("GET", "**/api/routines", [])
+      .as("remainingRoutines");
+
+    cy.get('[role="dialog"]').within(() => {
+      cy.contains("button", /^Delete$/).click();
+    });
+
+    cy.wait("@retryDelete");
+    cy.location("pathname").should("eq", "/routines");
+    cy.wait("@remainingRoutines");
+
     cy.contains("No routines yet").should("be.visible");
   });
 
@@ -402,29 +453,5 @@ describe("Routines", () => {
 
     cy.contains('[role="alert"]', "Unable to load the routine.")
       .should("be.visible");
-  });
-
-  it("shows an error when deletion fails", () => {
-    cy.intercept("DELETE", "**/api/routines/12", {
-      statusCode: 500,
-      body: {},
-    }).as("failedDelete");
-
-    cy.visit("/routines/12");
-    cy.wait("@getRoutine");
-
-    cy.window().then((win) => {
-      cy.stub(win, "confirm").returns(true);
-    });
-
-    cy.contains("button", "Delete routine").click();
-    cy.wait("@failedDelete");
-
-    cy.contains('[role="alert"]', "Unable to delete the routine.")
-      .should("be.visible");
-
-    cy.location("pathname").should("eq", "/routines/12");
-    cy.contains("button", "Delete routine")
-      .should("not.be.disabled");
   });
 });

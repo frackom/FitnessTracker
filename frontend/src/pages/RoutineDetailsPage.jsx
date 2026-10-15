@@ -5,6 +5,7 @@ import {
   Container, Stack, Typography,
 } from "@mui/material";
 import { getRoutineById, deleteRoutine } from "../services/routinesApi.js";
+import DeleteDialog from "../components/DeleteDialog.jsx";
 
 function RoutineDetailsPage() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ function RoutineDetailsPage() {
   const [error, setError] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -36,14 +38,14 @@ function RoutineDetailsPage() {
   }, [id]);
 
   async function handleDelete() {
-    if (!window.confirm(`Are you sure you want to delete "${routine.name}"?`)) {
-      return;
-    }
+    if (isDeleting) return;
 
     try {
       setIsDeleting(true);
       setDeleteError("");
+
       await deleteRoutine(routine.id);
+
       navigate("/routines");
     } catch (requestError) {
       setDeleteError(requestError.message);
@@ -96,9 +98,14 @@ function RoutineDetailsPage() {
                   to={`/routines/${routine.id}/edit`} disabled={isDeleting}>
                   Edit routine
                 </Button>
-                <Button variant="text" color="error" className="routine-details-delete"
-                  disabled={isDeleting} onClick={handleDelete}>
-                  {isDeleting ? "Deleting..." : "Delete routine"}
+                <Button
+                  variant="text" color="error" className="routine-details-delete" disabled={isDeleting}
+                  onClick={() => {
+                    setDeleteError("");
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  Delete routine
                 </Button>
               </Stack>
             </Stack>
@@ -136,6 +143,15 @@ function RoutineDetailsPage() {
                 </Card>
               ))}
             </Stack>
+            <DeleteDialog
+              open={deleteDialogOpen}
+              title="Delete routine?"
+              message={`Are you sure you want to delete "${routine.name}"? This action cannot be undone.`}
+              isDeleting={isDeleting}
+              error={deleteError}
+              onClose={() => setDeleteDialogOpen(false)}
+              onConfirm={handleDelete}
+            />
           </>
         ) : null}
       </Container>
