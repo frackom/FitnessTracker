@@ -1,37 +1,79 @@
-import "../styles/ExerciseCard.css";
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  Typography,
+} from "@mui/material";
 
 function ExerciseCard({ exercise, action }) {
   return (
-    <article className="exercise-card">
-      <img
+    <Card
+      component="article"
+      variant="outlined"
+      className="exercise-card"
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <CardMedia
+        component="img"
         className="exercise-card-image"
-        src={
+        image={
           exercise.imageUrl ||
           "/images/exercises/exercise-placeholder.jpg"
         }
         alt={`${exercise.name} demonstration`}
+        sx={{
+          height: { xs: 220, sm: 280 },
+          objectFit: "cover",
+        }}
       />
 
-      <div className="exercise-card-content">
-        <h2>{exercise.name}</h2>
+      <CardContent
+        className="exercise-card-content"
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+        }}
+      >
+        <Typography component="h2" variant="h6">
+          {exercise.name}
+        </Typography>
 
-        <p className="exercise-card-muscle">
-          {exercise.muscleGroup}
-        </p>
+        <Chip
+          className="exercise-card-muscle"
+          label={exercise.muscleGroup}
+          variant="outlined"
+          size="small"
+          sx={{ alignSelf: "flex-start" }}
+        />
 
         {exercise.description && (
-          <p className="exercise-card-description">
+          <Typography
+            className="exercise-card-description"
+            variant="body2"
+            color="text.secondary"
+          >
             {exercise.description}
-          </p>
+          </Typography>
         )}
 
         {action && (
-          <div className="exercise-card-action">
+          <Box
+            className="exercise-card-action"
+            sx={{ mt: "auto", pt: 1 }}
+          >
             {action}
-          </div>
+          </Box>
         )}
-      </div>
-    </article>
+      </CardContent>
+    </Card>
   );
 }
 

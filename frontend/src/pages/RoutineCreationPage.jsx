@@ -3,7 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getExercises } from "../services/exercisesApi";
 import { createRoutine, getRoutineById, updateRoutine } from "../services/routinesApi";
 import ExerciseCard from "../components/ExerciseCard.jsx";
-import "../styles/RoutineCreationPage.css";
+import {
+  Alert, Box, Button,
+  Card, Container, Stack,
+  TextField, Typography,
+} from "@mui/material";
 
 function RoutineCreationPage() {
   const { id } = useParams();
@@ -158,52 +162,100 @@ function RoutineCreationPage() {
     }
   }
 
-  return (
-    <main className="routine-builder">
-      <header>
-        <h1>{isEditing ? "Edit routine": "Create a routine"}</h1>
-        <p>
-          Select exercises and choose the target sets and repetitions.
-        </p>
-      </header>
+return (
+  <Box
+  sx={{
+    bgcolor: "background.default",
+    color: "text.primary",
+    minHeight: "calc(100vh - 64px)",
+  }}>
+    <Container
+      component="main"
+      className="routine-builder"
+      maxWidth="lg"
+      sx={{ py: { xs: 3, md: 6 } }}
+    >
+      <Box component="header" sx={{ mb: 4 }}>
+        <Typography component="h1" variant="h4" sx={{ mb: 1.5 }}>
+          {isEditing ? "Edit routine" : "Create a routine"}
+        </Typography>
 
-      {error && <p className="message error-message">{error}</p>}
+        <Typography color="text.secondary">
+          Select exercises and choose the target sets and repetitions.
+        </Typography>
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       {successMessage && (
-        <p className="message success-message">{successMessage}</p>
+        <Alert severity="success" sx={{ mb: 3 }}>
+          {successMessage}
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit}>
-        <section className="routine-details">
-          <label>
-            Routine name
-            <input
-              type="text"
-              value={name}
-              maxLength={100}
-              onChange={(event) => setName(event.target.value)}
-              required
-            />
-          </label>
+        <Card
+          component="section"
+          variant="outlined"
+          className="routine-details"
+          sx={{
+            p: { xs: 2, sm: 3 },
+            mb: 4,
+            display: "grid",
+            gap: 3,
+          }}
+        >
+          <TextField
+            label="Routine name"
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+            fullWidth
+            slotProps={{
+              htmlInput: { maxLength: 100 },
+            }}
+          />
 
-          <label>
-            Description
-            <textarea
-              value={description}
-              maxLength={500}
-              rows={3}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-          </label>
-        </section>
+          <TextField
+            label="Description"
+            value={description}
+            rows={3}
+            multiline
+            fullWidth
+            onChange={(event) => setDescription(event.target.value)}
+            slotProps={{
+              htmlInput: { maxLength: 500 },
+            }}
+          />
+        </Card>
 
-        <section>
-          <h2>Available exercises</h2>
+        <Box component="section" sx={{ mb: 4 }}>
+          <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
+            Available exercises
+          </Typography>
 
           {isLoading ? (
-            <p>Loading exercises...</p>
+            <Typography color="text.secondary">
+              Loading exercises...
+            </Typography>
           ) : (
-            <div className="routine-exercise-grid">
+            <Box
+              className="routine-exercise-grid"
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  lg: "repeat(3, minmax(0, 1fr))",
+                },
+                gap: 3,
+              }}
+            >
               {availableExercises.map((exercise) => {
                 const isSelected = selectedExercises.some(
                   (selected) => selected.exerciseId === exercise.id
@@ -214,101 +266,143 @@ function RoutineCreationPage() {
                     key={exercise.id}
                     exercise={exercise}
                     action={
-                      <button
+                      <Button
                         type="button"
+                        variant="outlined"
+                        fullWidth
                         disabled={isSelected}
                         onClick={() => addExercise(exercise)}
                       >
                         {isSelected ? "Added" : "Add exercise"}
-                      </button>
+                      </Button>
                     }
                   />
                 );
               })}
-            </div>
+            </Box>
           )}
-        </section>
+        </Box>
 
-        <section>
-          <h2>Selected exercises</h2>
+        <Box component="section" sx={{ mb: 4 }}>
+          <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
+            Selected exercises
+          </Typography>
 
           {selectedExercises.length === 0 ? (
-            <p>No exercises selected.</p>
+            <Typography color="text.secondary">
+              No exercises selected.
+            </Typography>
           ) : (
-            <div className="selected-exercises">
+            <Stack className="selected-exercises" spacing={2}>
               {selectedExercises.map((exercise, index) => (
-                <article
+                <Card
+                  component="article"
+                  variant="outlined"
                   className="selected-exercise"
                   key={exercise.exerciseId}
+                  sx={{
+                    p: 2,
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "minmax(0, 1fr) 100px 100px auto",
+                    },
+                    alignItems: "center",
+                    gap: 2,
+                  }}
                 >
-                  <div>
-                    <span className="exercise-position">
+                  <Box>
+                    <Typography
+                      component="span"
+                      className="exercise-position"
+                      color="primary.main"
+                      sx={{ mr: 1, fontWeight: 700 }}
+                    >
                       {index + 1}
-                    </span>
+                    </Typography>
 
-                    <strong>{exercise.name}</strong>
-                    <span>{exercise.muscleGroup}</span>
-                  </div>
+                    <Typography
+                      component="strong"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      {exercise.name}
+                    </Typography>
 
-                  <label>
-                    Sets
-                    <input
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={exercise.targetSets}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.exerciseId,
-                          "targetSets",
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      {exercise.muscleGroup}
+                    </Typography>
+                  </Box>
 
-                  <label>
-                    Reps
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={exercise.targetReps}
-                      onChange={(event) =>
-                        updateExercise(
-                          exercise.exerciseId,
-                          "targetReps",
-                          event.target.value
-                        )
-                      }
-                    />
-                  </label>
+                  <TextField
+                    label="Sets"
+                    type="number"
+                    size="small"
+                    value={exercise.targetSets}
+                    onChange={(event) =>
+                      updateExercise(
+                        exercise.exerciseId,
+                        "targetSets",
+                        event.target.value
+                      )
+                    }
+                    slotProps={{
+                      htmlInput: { min: 1, max: 20 },
+                    }}
+                  />
 
-                  <button
+                  <TextField
+                    label="Reps"
+                    type="number"
+                    size="small"
+                    value={exercise.targetReps}
+                    onChange={(event) =>
+                      updateExercise(
+                        exercise.exerciseId,
+                        "targetReps",
+                        event.target.value
+                      )
+                    }
+                    slotProps={{
+                      htmlInput: { min: 1, max: 100 },
+                    }}
+                  />
+
+                  <Button
                     type="button"
+                    color="error"
                     className="remove-button"
                     onClick={() =>
                       removeExercise(exercise.exerciseId)
                     }
                   >
                     Remove
-                  </button>
-                </article>
+                  </Button>
+                </Card>
               ))}
-            </div>
+            </Stack>
           )}
-        </section>
+        </Box>
 
-        <button
+        <Button
           className="save-routine-button"
           type="submit"
+          variant="contained"
+          size="large"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Saving..." : isEditing ? "Update Routine" : "Save routine"}
-        </button>
+          {isSubmitting
+            ? "Saving..."
+            : isEditing
+              ? "Update Routine"
+              : "Save routine"}
+        </Button>
       </form>
-    </main>
-  );
+    </Container>
+  </Box>
+);
 }
 
 export default RoutineCreationPage;

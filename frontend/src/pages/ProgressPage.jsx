@@ -4,7 +4,12 @@ import ProgressChart from "../components/ProgressChart.jsx";
 import { getWorkouts } from "../services/workoutsApi.js";
 import { getExercises } from "../services/exercisesApi.js";
 import { getExerciseProgress } from "../utils/workoutProgress.js";
-import "../styles/ProgressPage.css";
+import {
+  Alert, Card, Container, Link as MuiLink, Table,
+  TableBody, TableCell, TableContainer,
+  TableHead, TableRow, TextField,
+  Typography, Box
+} from "@mui/material";
 
 function ProgressPage() {
   const [workouts, setWorkouts] = useState(null);
@@ -54,68 +59,98 @@ function ProgressPage() {
     Number(selectedId)
   );
 
-  return (
-    <main className="progress-page">
-      <h1>Exercise progress</h1>
+return (
+  <Box
+    sx={{
+      bgcolor: "background.default",
+      color: "text.primary",
+      minHeight: "calc(100vh - 64px)",
+    }}>
+    <Container
+      component="main"
+      maxWidth="md"
+      sx={{ py: { xs: 3, md: 6 } }}
+    >
+      <Typography component="h1" variant="h4" sx={{ mb: 2 }}>
+        Exercise Progress
+      </Typography>
 
-      <p>
+      <Typography color="text.secondary" sx={{ mb: 4 }}>
         Track the heaviest weight you logged for an exercise in each
         workout, across all routines.
-      </p>
+      </Typography>
 
       {!workouts && !error && (
-        <p role="status">Loading progress...</p>
+        <Typography role="status" color="text.secondary">
+          Loading progress...
+        </Typography>
       )}
 
       {error && (
-        <p role="alert">
-          {error} <Link to="/workouts">View workout history</Link>
-        </p>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}{" "}
+          <MuiLink component={Link} to="/workouts">
+            View workout history
+          </MuiLink>
+        </Alert>
       )}
 
       {workouts && exercises.length === 0 && (
-        <p>The exercise library is empty.</p>
+        <Typography color="text.secondary">
+          The exercise library is empty.
+        </Typography>
       )}
 
       {selectedExercise && (
         <>
-          <label
-            className="progress-select"
-            htmlFor="progress-exercise"
+          <TextField
+            select
+            label="Exercise"
+            value={selectedId}
+            onChange={(event) => setSelectedId(event.target.value)}
+            sx={{ width: { xs: "100%", sm: 320 }, mb: 3 }}
+            slotProps={{
+              select: { native: true },
+              htmlInput: { id: "progress-exercise" },
+            }}
           >
-            Exercise
-            <select
-              id="progress-exercise"
-              value={selectedId}
-              onChange={(event) => setSelectedId(event.target.value)}
-            >
-              {exercises.map((exercise) => (
-                <option key={exercise.id} value={exercise.id}>
-                  {exercise.name}
-                </option>
-              ))}
-            </select>
-          </label>
+            {exercises.map((exercise) => (
+              <option key={exercise.id} value={exercise.id}>
+                {exercise.name}
+              </option>
+            ))}
+          </TextField>
 
-          <section
-            className="progress-panel"
+          <Card
+            component="section"
+            variant="outlined"
             aria-labelledby="progress-chart-heading"
+            sx={{ p: { xs: 2, sm: 3 } }}
           >
-            <h2 id="progress-chart-heading">
+            <Typography
+              component="h2"
+              variant="h6"
+              id="progress-chart-heading"
+              sx={{ mb: 2 }}
+            >
               {selectedExercise.name}
-            </h2>
+            </Typography>
 
             {points.length === 0 ? (
-              <p>
+              <Typography color="text.secondary">
                 No progress recorded yet for {selectedExercise.name}.{" "}
-                <Link to="/routines">Complete a workout</Link> with
-                this exercise to start tracking.
-              </p>
+                <MuiLink component={Link} to="/routines">
+                  Complete a workout
+                </MuiLink>{" "}
+                with this exercise to start tracking.
+              </Typography>
             ) : (
               <>
-                <p>Heaviest weight per workout · kg</p>
+                <Typography color="text.secondary" sx={{ mb: 1 }}>
+                  Heaviest weight per workout · kg
+                </Typography>
 
-                <p>
+                <Typography sx={{ mb: 2 }}>
                   Highest logged:{" "}
                   <strong>
                     {Math.max(...points.map((point) => point.weightKg))} kg
@@ -123,7 +158,7 @@ function ProgressPage() {
                   {" · "}
                   {points.length}{" "}
                   {points.length === 1 ? "workout" : "workouts"}
-                </p>
+                </Typography>
 
                 <ProgressChart
                   points={points}
@@ -131,52 +166,55 @@ function ProgressPage() {
                 />
 
                 {points.length === 1 && (
-                  <p>
+                  <Typography color="text.secondary" sx={{ mb: 2 }}>
                     Log another workout with this exercise to see a trend.
-                  </p>
+                  </Typography>
                 )}
 
-                <p className="progress-note">
-                  Weight alone does not measure all progress; your
-                  reps and sets also matter.
-                </p>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  Weight alone does not measure all progress; your reps
+                  and sets also matter.
+                </Typography>
 
-                <div className="progress-table-wrapper">
-                  <table className="progress-table">
+                <TableContainer>
+                  <Table className="progress-table">
                     <caption>
                       Recorded weights for {selectedExercise.name}
                     </caption>
 
-                    <thead>
-                      <tr>
-                        <th scope="col">Workout date</th>
-                        <th scope="col">Routine</th>
-                        <th scope="col">Heaviest weight</th>
-                      </tr>
-                    </thead>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Workout date</TableCell>
+                        <TableCell>Routine</TableCell>
+                        <TableCell>Heaviest weight</TableCell>
+                      </TableRow>
+                    </TableHead>
 
-                    <tbody>
+                    <TableBody>
                       {points.map((point) => (
-                        <tr key={point.workoutId}>
-                          <td>
-                            {new Date(
-                              point.completedAtUtc
-                            ).toLocaleString()}
-                          </td>
-                          <td>{point.routineName}</td>
-                          <td>{point.weightKg} kg</td>
-                        </tr>
+                        <TableRow key={point.workoutId}>
+                          <TableCell>
+                            {new Date(point.completedAtUtc).toLocaleString()}
+                          </TableCell>
+                          <TableCell>{point.routineName}</TableCell>
+                          <TableCell>{point.weightKg} kg</TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </>
             )}
-          </section>
+          </Card>
         </>
       )}
-    </main>
-  );
+    </Container>
+  </Box>
+);
 }
 
 export default ProgressPage;

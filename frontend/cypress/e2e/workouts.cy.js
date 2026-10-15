@@ -41,13 +41,13 @@ describe("Workout logging", () => {
 
     cy.contains(".workout-exercise", "Bench Press").within(() => {
       cy.get(".workout-set").first().within(() => {
-        cy.contains("label", "Reps").find("input").clear().type("7");
-        cy.contains("label", "Weight (kg)").find("input").type("42.5");
+        cy.getInputByLabel("Reps").clear().type("7");
+        cy.getInputByLabel("Weight (kg)").type("42.5");
       });
     });
     cy.contains(".workout-exercise", "Squat").within(() => {
-      cy.contains("label", "Reps").find("input").type("6");
-      cy.contains("label", "Weight (kg)").find("input").type("0");
+      cy.getInputByLabel("Reps").type("6");
+      cy.getInputByLabel("Weight (kg)").type("0");
     });
     cy.contains("button", "Complete workout").click();
     cy.wait("@saveWorkout");
@@ -65,8 +65,8 @@ describe("Workout logging", () => {
     cy.intercept("POST", "**/api/workouts", cy.stub().as("saveRequest"));
     cy.visit("/routines/12/workout");
     cy.contains(".workout-exercise", "Bench Press").find(".workout-set").first().within(() => {
-      cy.contains("label", "Reps").find("input").type("0");
-      cy.contains("label", "Weight (kg)").find("input").type("40");
+      cy.getInputByLabel("Reps").type("0");
+      cy.getInputByLabel("Weight (kg)").type("40");
     });
     cy.contains("button", "Complete workout").click();
     cy.contains('[role="alert"]', "Enter reps and weight for at least one set").should("be.visible");
@@ -81,8 +81,8 @@ describe("Workout logging", () => {
     }).as("saveWorkout");
     cy.visit("/routines/12/workout");
     cy.contains(".workout-exercise", "Bench Press").find(".workout-set").first().within(() => {
-      cy.contains("label", "Reps").find("input").type("8");
-      cy.contains("label", "Weight (kg)").find("input").type("50");
+      cy.getInputByLabel("Reps").type("8");
+      cy.getInputByLabel("Weight (kg)").type("50");
     });
     cy.contains("button", "Complete workout").click();
     cy.wait("@saveWorkout");
@@ -97,10 +97,50 @@ describe("Workout logging", () => {
     cy.intercept("POST", "**/api/workouts", cy.stub().as("saveRequest"));
     cy.visit("/routines/12/workout");
     cy.contains(".workout-exercise", "Bench Press").find(".workout-set").first().within(() => {
-      cy.contains("label", "Reps").find("input").type("8");
+      cy.getInputByLabel("Reps").type("8");
     });
     cy.contains("button", "Complete workout").click();
     cy.contains('[role="alert"]', "Sets with reps need valid reps and weight").should("be.visible");
     cy.get("@saveRequest").should("not.have.been.called");
+  });
+});
+
+describe("Workout history", () => {
+  it("shows an empty state and links to routines", () => {
+    cy.intercept("GET", "**/api/workouts", [])
+      .as("getWorkouts");
+
+    cy.intercept("GET", "**/api/routines", [])
+      .as("getRoutines");
+
+    cy.visit("/workouts");
+    cy.wait("@getWorkouts");
+
+    cy.contains("h1", "Workout History").should("be.visible");
+    cy.contains("No workouts recorded yet.").should("be.visible");
+    cy.get(".workout-exercise").should("not.exist");
+
+    cy.contains("a", "Choose a routine").click();
+
+    cy.location("pathname").should("eq", "/routines");
+    cy.wait("@getRoutines");
+    cy.contains("h1", "My Routines").should("be.visible");
+  });
+
+  it("shows an error when workout history cannot be loaded", () => {
+    cy.intercept("GET", "**/api/workouts", {
+      statusCode: 500,
+      body: {},
+    }).as("failedHistory");
+
+    cy.visit("/workouts");
+    cy.wait("@failedHistory");
+
+    cy.contains('[role="alert"]', "Unable to load workout history.")
+      .should("be.visible");
+
+    cy.get(".workout-exercise").should("not.exist");
+    cy.contains("No workouts recorded yet.").should("not.exist");
+    cy.contains("Loading workouts...").should("not.exist");
   });
 });

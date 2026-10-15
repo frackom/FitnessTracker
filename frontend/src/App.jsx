@@ -7,14 +7,16 @@ import RoutineDetailsPage from "./pages/RoutineDetailsPage.jsx";
 import WorkoutPage from "./pages/WorkoutPage.jsx";
 import WorkoutHistoryPage from "./pages/WorkoutHistoryPage.jsx";
 import ProgressPage from "./pages/ProgressPage.jsx";
+import WelcomePage from "./pages/WelcomePage.jsx";
+import { useLocation } from "react-router-dom";
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <AppNavbar />
 
       <Routes>
-        <Route path="/" element={<Navigate to="/routines" replace />} />
+        <Route path="/" element={<WelcomePage />} />
         <Route path="/exercises" element={<ExercisesPage />} />
         <Route path="/routines" element={<RoutinesPage />} />
         <Route path="/routines/create" element={<RoutineCreationPage />} />
@@ -26,6 +28,12 @@ function App() {
       </Routes>
     </BrowserRouter>
   );
+}
+
+function AppNavbar() {
+  const { pathname } = useLocation();
+
+  return pathname === "/" ? null : <Navbar />;
 }
 
 export default App;

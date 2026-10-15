@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import ExerciseCard from "../components/ExerciseCard.jsx";
 import { getExercises } from "../services/exercisesApi.js";
-import "../styles/ExercisesPage.css";
+import {
+  Alert, Box,
+  Container, Typography,
+} from "@mui/material";
 
 function ExercisesPage() {
   const [exercises, setExercises] = useState([]);
@@ -23,28 +26,52 @@ function ExercisesPage() {
     loadExercises();
   }, []);
 
-  if (isLoading) {
-    return <p>Loading exercises...</p>;
-  }
+return (
+  <Box
+  sx={{
+    bgcolor: "background.default",
+    color: "text.primary",
+    minHeight: "calc(100vh - 64px)",
+  }}>
+    <Container
+      component="main"
+      maxWidth="lg"
+      sx={{ py: { xs: 3, md: 6 } }}
+    >
+      <Typography component="h1" variant="h4" sx={{ mb: 3 }}>
+        Exercise Library
+      </Typography>
 
-  if (error) {
-    return <p className="exercises-page-error">{error}</p>;
-  }
-
-  return (
-    <main className="exercises-page">
-      <h1>Exercise Library</h1>
-
-      <div className="exercise-grid">
-        {exercises.map((exercise) => (
-          <ExerciseCard
-            key={exercise.id}
-            exercise={exercise}
-          />
-        ))}
-      </div>
-    </main>
-  );
+      {isLoading ? (
+        <Typography role="status" color="text.secondary">
+          Loading exercises...
+        </Typography>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        <Box
+          className="exercise-grid"
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+              lg: "repeat(3, minmax(0, 1fr))",
+            },
+            gap: 3,
+          }}
+        >
+          {exercises.map((exercise) => (
+            <ExerciseCard
+              key={exercise.id}
+              exercise={exercise}
+            />
+          ))}
+        </Box>
+      )}
+    </Container>
+  </Box>
+);
 }
 
 export default ExercisesPage;

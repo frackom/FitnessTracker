@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getWorkouts } from "../services/workoutsApi.js";
-import "../styles/WorkoutPage.css";
+import {
+  Alert, Box, Card,
+  Container, Link as MuiLink,
+  Typography,
+} from "@mui/material";
 
 function WorkoutHistoryPage() {
   const [workouts, setWorkouts] = useState(null);
@@ -14,27 +18,102 @@ function WorkoutHistoryPage() {
     return () => { active = false; };
   }, []);
 
-  return (
-    <main className="workout-page">
-      <h1>Workout history</h1>
-      {error && <p role="alert">{error}</p>}
-      {!workouts && !error && <p>Loading workouts...</p>}
-      {workouts?.length === 0 && <p>No workouts recorded yet. <Link to="/routines">Choose a routine</Link> to get started.</p>}
+return (
+  <Box
+    sx={{
+      bgcolor: "background.default",
+      color: "text.primary",
+      minHeight: "calc(100vh - 64px)",
+    }}>
+    <Container
+      component="main"
+      className="workout-page"
+      maxWidth="md"
+      sx={{ py: { xs: 3, md: 6 } }}
+    >
+      <Typography component="h1" variant="h4" sx={{ mb: 4 }}>
+        Workout History
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {!workouts && !error && (
+        <Typography role="status" color="text.secondary">
+          Loading workouts...
+        </Typography>
+      )}
+
+      {workouts?.length === 0 && (
+        <Card variant="outlined" sx={{ p: 3 }}>
+          <Typography color="text.secondary">
+            No workouts recorded yet.{" "}
+            <MuiLink component={Link} to="/routines">
+              Choose a routine
+            </MuiLink>{" "}
+            to get started.
+          </Typography>
+        </Card>
+      )}
+
       {workouts?.map((workout) => (
-        <article className="workout-exercise" key={workout.id}>
-          <h2>{workout.routineName}</h2>
-          <p>{new Date(workout.completedAtUtc).toLocaleString()}</p>
-          {[...new Set(workout.sets.map((set) => set.exerciseId))].map((exerciseId) => {
-            const exerciseSets = workout.sets.filter((set) => set.exerciseId === exerciseId);
-            return <div key={exerciseId} className="history-exercise">
-              <strong>{exerciseSets[0].exerciseName}</strong>
-              <p>{exerciseSets.map((set) => `${set.reps} reps × ${set.weightKg} kg`).join(" · ")}</p>
-            </div>;
-          })}
-        </article>
+        <Card
+          component="article"
+          variant="outlined"
+          className="workout-exercise"
+          key={workout.id}
+          sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}
+        >
+          <Typography component="h2" variant="h6" sx={{ mb: 1 }}>
+            {workout.routineName}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            {new Date(workout.completedAtUtc).toLocaleString()}
+          </Typography>
+
+          {[...new Set(workout.sets.map((set) => set.exerciseId))].map(
+            (exerciseId) => {
+              const exerciseSets = workout.sets.filter(
+                (set) => set.exerciseId === exerciseId
+              );
+
+              return (
+                <Box
+                  key={exerciseId}
+                  className="history-exercise"
+                  sx={{
+                    mt: 2,
+                    pt: 2,
+                    borderTop: 1,
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography component="strong" sx={{ fontWeight: 600 }}>
+                    {exerciseSets[0].exerciseName}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
+                    {exerciseSets
+                      .map((set) => `${set.reps} reps × ${set.weightKg} kg`)
+                      .join(" · ")}
+                  </Typography>
+                </Box>
+              );
+            }
+          )}
+        </Card>
       ))}
-    </main>
-  );
+    </Container>
+  </Box>
+);
 }
 
 export default WorkoutHistoryPage;

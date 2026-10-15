@@ -1,31 +1,30 @@
 # FitnessTracker
-The Fitness Tracker website helps users organise and monitor their strength training.
 
-The intended user flow is:
+A full-stack strength-training application built with React,
+ASP.NET Core, and MySQL. Users can create reusable routines,
+record workout sets, and track exercise progress over time.
 
-1. Browse exercises from the exercise library.
-2. Create reusable workout routines.
-3. Start a workout from a saved routine.
-4. Record weight and repetitions for each set.
-5. Complete the workout.
-6. Review workout history and progress over time.
+## Screenshots
 
-## Project Status
+### Welcome page
+![FitnessTracker welcome page](frontend/public/assets/screenshots/website1.png)
 
-### Completed
+### Routines
+![Saved workout routines](frontend/public/assets/screenshots/website2.png)
 
-- React frontend and ASP.NET Core API setup
-- MySQL database integration with Entity Framework Core
-- Exercise library API and frontend page
-- Routine database models and relationships
-- Routine creation and retrieval endpoints
-- Routine request validation
-- Routine CRUD working with React frontend
-- Automated testing
-- Workout set logging and history
-- Workout progress charts
+### Progress
+![Exercise progress chart](frontend/public/assets/screenshots/website3.png)
+
+## Features
+
+- Create, view, edit, and delete workout routines.
+- Configure target sets and repetitions for each exercise.
+- Log the weight and repetitions performed in a workout.
+- Review completed workouts.
+- Track the heaviest weight logged per exercise in each workout.
+- Responsive Material UI interface with a shared dark theme.
 
 ### Planned
 
 - User accounts and authentication
-- Automated deployment
+- Hosting and automated deployment
