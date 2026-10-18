@@ -1,8 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
-
-if (!API_BASE_URL) {
-  throw new Error("Set VITE_API_BASE_URL in .env.local.");
-}
+import { API_URL as API_BASE_URL } from "./apiConfig";
 
 async function throwApiError(response) {
   const data = await response.json().catch(() => null);
