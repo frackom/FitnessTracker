@@ -166,7 +166,12 @@ namespace FitnessTracker.Api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Routines");
                 });
@@ -211,7 +216,12 @@ namespace FitnessTracker.Api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Workouts");
                 });
@@ -380,6 +390,16 @@ namespace FitnessTracker.Api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("FitnessTracker.Api.Models.Routine", b =>
+                {
+                    b.HasOne("FitnessTracker.Api.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FitnessTracker.Api.Models.RoutineExercise", b =>
                 {
                     b.HasOne("FitnessTracker.Api.Models.Exercise", "Exercise")
@@ -397,6 +417,16 @@ namespace FitnessTracker.Api.Migrations
                     b.Navigation("Exercise");
 
                     b.Navigation("Routine");
+                });
+
+            modelBuilder.Entity("FitnessTracker.Api.Models.Workout", b =>
+                {
+                    b.HasOne("FitnessTracker.Api.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FitnessTracker.Api.Models.WorkoutSet", b =>

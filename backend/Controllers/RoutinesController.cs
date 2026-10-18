@@ -4,14 +4,23 @@ using FitnessTracker.Api.Requests;
 using FitnessTracker.Api.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[AutoValidateAntiforgeryToken]
 public class RoutinesController : ControllerBase
 {
     private readonly FitnessTrackerDbContext _context;
+
+    private string CurrentUserId =>
+    User.FindFirstValue(ClaimTypes.NameIdentifier)
+    ?? throw new InvalidOperationException(
+        "The authenticated user has no user ID.");
 
     public RoutinesController(FitnessTrackerDbContext context)
     {
@@ -24,6 +33,7 @@ public class RoutinesController : ControllerBase
     {
         List<RoutineResponse> routines = await _context.Routines
             .AsNoTracking()
+            .Where(routine => routine.UserId == CurrentUserId)
             .OrderBy(routine => routine.Name)
             .Select(routine => new RoutineResponse
             {
@@ -55,7 +65,9 @@ public class RoutinesController : ControllerBase
     {
         RoutineResponse? routine = await _context.Routines
             .AsNoTracking()
-            .Where(routine => routine.Id == id)
+            .Where(routine =>
+                routine.Id == id &&
+                routine.UserId == CurrentUserId)
             .Select(routine => new RoutineResponse
             {
                 Id = routine.Id,
@@ -127,6 +139,7 @@ public class RoutinesController : ControllerBase
 
         var routine = new Routine
         {
+            UserId = CurrentUserId,
             Name = request.Name.Trim(),
             Description = request.Description.Trim(),
 
@@ -160,7 +173,9 @@ public class RoutinesController : ControllerBase
     {
         var routine = await _context.Routines
             .Include(routine => routine.RoutineExercises)
-            .SingleOrDefaultAsync(routine => routine.Id == id);
+            .SingleOrDefaultAsync(routine =>
+                routine.Id == id &&
+                routine.UserId == CurrentUserId);
 
         if (routine is null)
         {
@@ -188,7 +203,9 @@ public class RoutinesController : ControllerBase
     {
         var routine = await _context.Routines
             .Include(routine => routine.RoutineExercises)
-            .SingleOrDefaultAsync(routine => routine.Id == id);
+            .SingleOrDefaultAsync(routine =>
+                routine.Id == id &&
+                routine.UserId == CurrentUserId);
 
         if (routine is null)
         {

@@ -1,5 +1,7 @@
 describe("Exercise progress", () => {
   beforeEach(() => {
+    cy.mockAuth();
+    
     cy.intercept("GET", "**/api/exercises", [
       { id: 1, name: "Bench Press" },
       { id: 3, name: "Lat Pulldown" },

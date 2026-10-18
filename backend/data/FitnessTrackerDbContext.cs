@@ -95,5 +95,17 @@ public class FitnessTrackerDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<WorkoutSet>()
             .Property(set => set.WeightKg)
             .HasPrecision(8, 2);
+
+        modelBuilder.Entity<Routine>()
+           .HasOne(routine => routine.User)
+           .WithMany()
+           .HasForeignKey(routine => routine.UserId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Workout>()
+            .HasOne(workout => workout.User)
+            .WithMany()
+            .HasForeignKey(workout => workout.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

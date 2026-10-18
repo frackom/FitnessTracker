@@ -8,6 +8,10 @@ public class Routine
 
     public string Description { get; set; } = string.Empty;
 
+    public string? UserId { get; set; }
+
+    public ApplicationUser? User { get; set; }
+
     public ICollection<RoutineExercise> RoutineExercises { get; set; }
         = new List<RoutineExercise>();
 }

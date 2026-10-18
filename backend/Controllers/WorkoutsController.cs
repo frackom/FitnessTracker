@@ -3,17 +3,28 @@ using FitnessTracker.Api.Models;
 using FitnessTracker.Api.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
+[AutoValidateAntiforgeryToken]
 public class WorkoutsController(FitnessTrackerDbContext context) : ControllerBase
 {
+
+    private string CurrentUserId =>
+    User.FindFirstValue(ClaimTypes.NameIdentifier)
+    ?? throw new InvalidOperationException(
+        "The authenticated user has no user ID.");
+
     [HttpGet]
     public async Task<ActionResult> GetWorkouts()
     {
         var workouts = await context.Workouts.AsNoTracking()
+            .Where(workout => workout.UserId == CurrentUserId)
             .OrderByDescending(workout => workout.CompletedAtUtc)
             .ThenByDescending(workout => workout.Id)
             .Select(workout => new
@@ -42,7 +53,9 @@ public class WorkoutsController(FitnessTrackerDbContext context) : ControllerBas
         var routine = await context.Routines.AsNoTracking()
             .Include(item => item.RoutineExercises)
             .ThenInclude(item => item.Exercise)
-            .SingleOrDefaultAsync(item => item.Id == request.RoutineId);
+            .SingleOrDefaultAsync(item =>
+                item.Id == request.RoutineId &&
+                item.UserId == CurrentUserId);
         if (routine is null) return NotFound(new { message = "Routine not found." });
 
         var exercises = routine.RoutineExercises.ToDictionary(item => item.ExerciseId);
@@ -54,6 +67,7 @@ public class WorkoutsController(FitnessTrackerDbContext context) : ControllerBas
 
         var workout = new Workout
         {
+            UserId = CurrentUserId,
             RoutineId = routine.Id,
             RoutineName = routine.Name,
             CompletedAtUtc = DateTime.UtcNow,

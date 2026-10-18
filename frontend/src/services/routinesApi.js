@@ -1,8 +1,8 @@
-import { API_URL } from "./apiConfig";
+import { authenticatedFetch } from "./authenticatedFetch";
 
 export async function getRoutines() {
-  const response = await fetch(`${API_URL}/api/routines`);
-
+  const response = await authenticatedFetch("/api/routines");
+  
   if (!response.ok) {
     throw new Error("Unable to load routines.");
   }
@@ -11,7 +11,7 @@ export async function getRoutines() {
 }
 
 export async function getRoutineById(id) {
-  const response = await fetch(`${API_URL}/api/routines/${id}`);
+  const response = await authenticatedFetch(`/api/routines/${id}`);
 
   if (response.status === 404) {
     throw new Error("Routine not found.");
@@ -25,7 +25,7 @@ export async function getRoutineById(id) {
 }
 
 export async function createRoutine(routine) {
-  const response = await fetch(`${API_URL}/api/routines`, {
+  const response = await authenticatedFetch("/api/routines", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -51,7 +51,7 @@ export async function createRoutine(routine) {
 }
 
 export async function deleteRoutine(id) {
-  const response = await fetch(`${API_URL}/api/routines/${id}`, {
+  const response = await authenticatedFetch(`/api/routines/${id}`, {
     method: "DELETE",
   });
 
@@ -65,7 +65,7 @@ export async function deleteRoutine(id) {
 }
 
 export async function updateRoutine(id, routine) {
-  const response = await fetch(`${API_URL}/api/routines/${id}`, {
+  const response = await authenticatedFetch(`/api/routines/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

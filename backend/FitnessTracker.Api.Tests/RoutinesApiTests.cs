@@ -12,20 +12,24 @@ public sealed class RoutinesApiTests
     private readonly FitnessTrackerApiFactory _factory;
     private readonly HttpClient _client;
 
-    public RoutinesApiTests(
-        FitnessTrackerApiFactory factory)
+    public RoutinesApiTests(FitnessTrackerApiFactory factory)
     {
         _factory = factory;
-        _client = factory.CreateClient();
+        _client = TestAuth.CreateClient(factory);
     }
 
     public async Task InitializeAsync()
     {
         await _factory.ResetDatabaseAsync();
+
+        await TestAuth.RegisterAndLoginAsync(
+            _client,
+            $"test-{Guid.NewGuid():N}@example.com");
     }
 
     public Task DisposeAsync()
     {
+        _client.Dispose();
         return Task.CompletedTask;
     }
 
@@ -34,18 +38,17 @@ public sealed class RoutinesApiTests
     {
         int routineId = await CreateRoutineAsync();
 
-        HttpResponseMessage response =
+        using var response =
             await _client.GetAsync("/api/routines");
 
         response.EnsureSuccessStatusCode();
 
-        List<RoutineResponse>? routines =
-            await response.Content
-                .ReadFromJsonAsync<List<RoutineResponse>>();
+        var routines = await response.Content
+            .ReadFromJsonAsync<List<RoutineResponse>>();
 
         Assert.NotNull(routines);
 
-        RoutineResponse routine = Assert.Single(routines);
+        var routine = Assert.Single(routines);
 
         Assert.Equal(routineId, routine.Id);
         Assert.Equal("Full Body", routine.Name);
@@ -55,13 +58,10 @@ public sealed class RoutinesApiTests
     [Fact]
     public async Task GetRoutine_ReturnsNotFound_WhenMissing()
     {
-        HttpResponseMessage response =
+        using var response =
             await _client.GetAsync("/api/routines/999");
 
-        Assert.Equal(
-            HttpStatusCode.NotFound,
-            response.StatusCode
-        );
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -88,19 +88,15 @@ public sealed class RoutinesApiTests
             }
         };
 
-        HttpResponseMessage response =
-            await _client.PostAsJsonAsync(
-                "/api/routines",
-                request
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Post,
+            "/api/routines",
+            request);
 
-        Assert.Equal(
-            HttpStatusCode.Created,
-            response.StatusCode
-        );
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-        DatabaseCounts counts =
-            await _factory.GetDatabaseCountsAsync();
+        var counts = await _factory.GetDatabaseCountsAsync();
 
         Assert.Equal(1, counts.Routines);
         Assert.Equal(2, counts.RoutineExercises);
@@ -131,19 +127,15 @@ public sealed class RoutinesApiTests
             }
         };
 
-        HttpResponseMessage response =
-            await _client.PostAsJsonAsync(
-                "/api/routines",
-                request
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Post,
+            "/api/routines",
+            request);
 
-        Assert.Equal(
-            HttpStatusCode.BadRequest,
-            response.StatusCode
-        );
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        DatabaseCounts counts =
-            await _factory.GetDatabaseCountsAsync();
+        var counts = await _factory.GetDatabaseCountsAsync();
 
         Assert.Equal(0, counts.Routines);
         Assert.Equal(0, counts.RoutineExercises);
@@ -167,19 +159,15 @@ public sealed class RoutinesApiTests
             }
         };
 
-        HttpResponseMessage response =
-            await _client.PostAsJsonAsync(
-                "/api/routines",
-                request
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Post,
+            "/api/routines",
+            request);
 
-        Assert.Equal(
-            HttpStatusCode.BadRequest,
-            response.StatusCode
-        );
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        DatabaseCounts counts =
-            await _factory.GetDatabaseCountsAsync();
+        var counts = await _factory.GetDatabaseCountsAsync();
 
         Assert.Equal(0, counts.Routines);
     }
@@ -204,34 +192,31 @@ public sealed class RoutinesApiTests
             }
         };
 
-        HttpResponseMessage updateResponse =
-            await _client.PutAsJsonAsync(
-                $"/api/routines/{routineId}",
-                updateRequest
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Put,
+            $"/api/routines/{routineId}",
+            updateRequest);
 
-        updateResponse.EnsureSuccessStatusCode();
+        response.EnsureSuccessStatusCode();
 
-        RoutineResponse? updatedRoutine =
-            await updateResponse.Content
-                .ReadFromJsonAsync<RoutineResponse>();
+        var updatedRoutine = await response.Content
+            .ReadFromJsonAsync<RoutineResponse>();
 
         Assert.NotNull(updatedRoutine);
         Assert.Equal("Updated Routine", updatedRoutine.Name);
+
         Assert.Equal(
             "Updated description",
-            updatedRoutine.Description
-        );
+            updatedRoutine.Description);
 
-        RoutineExerciseResponse exercise =
-            Assert.Single(updatedRoutine.Exercises);
+        var exercise = Assert.Single(updatedRoutine.Exercises);
 
         Assert.Equal(3, exercise.ExerciseId);
         Assert.Equal(5, exercise.TargetSets);
         Assert.Equal(12, exercise.TargetReps);
 
-        DatabaseCounts counts =
-            await _factory.GetDatabaseCountsAsync();
+        var counts = await _factory.GetDatabaseCountsAsync();
 
         Assert.Equal(1, counts.Routines);
         Assert.Equal(1, counts.RoutineExercises);
@@ -256,16 +241,13 @@ public sealed class RoutinesApiTests
             }
         };
 
-        HttpResponseMessage response =
-            await _client.PutAsJsonAsync(
-                "/api/routines/999",
-                request
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Put,
+            "/api/routines/999",
+            request);
 
-        Assert.Equal(
-            HttpStatusCode.NotFound,
-            response.StatusCode
-        );
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -273,18 +255,14 @@ public sealed class RoutinesApiTests
     {
         int routineId = await CreateRoutineAsync();
 
-        HttpResponseMessage response =
-            await _client.DeleteAsync(
-                $"/api/routines/{routineId}"
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Delete,
+            $"/api/routines/{routineId}");
 
-        Assert.Equal(
-            HttpStatusCode.NoContent,
-            response.StatusCode
-        );
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        DatabaseCounts counts =
-            await _factory.GetDatabaseCountsAsync();
+        var counts = await _factory.GetDatabaseCountsAsync();
 
         Assert.Equal(0, counts.Routines);
         Assert.Equal(0, counts.RoutineExercises);
@@ -314,19 +292,16 @@ public sealed class RoutinesApiTests
             }
         };
 
-        HttpResponseMessage response =
-            await _client.PostAsJsonAsync(
-                "/api/routines",
-                request
-            );
+        using var response = await TestAuth.SendAsync(
+            _client,
+            HttpMethod.Post,
+            "/api/routines",
+            request);
 
         response.EnsureSuccessStatusCode();
 
-        string responseBody =
-            await response.Content.ReadAsStringAsync();
-
-        using JsonDocument document =
-            JsonDocument.Parse(responseBody);
+        using var document = await JsonDocument.ParseAsync(
+            await response.Content.ReadAsStreamAsync());
 
         return document.RootElement
             .GetProperty("id")

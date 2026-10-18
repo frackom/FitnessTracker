@@ -1,7 +1,7 @@
-import { API_URL } from "./apiConfig";
+import { authenticatedFetch } from "./authenticatedFetch";
 
 export async function completeWorkout(workout) {
-  const response = await fetch(`${API_URL}/api/workouts`, {
+  const response = await authenticatedFetch("/api/workouts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(workout),
@@ -16,7 +16,7 @@ export async function completeWorkout(workout) {
 }
 
 export async function getWorkouts() {
-  const response = await fetch(`${API_URL}/api/workouts`);
+  const response = await authenticatedFetch("/api/workouts");
   if (!response.ok) throw new Error("Unable to load workout history.");
   return response.json();
 }

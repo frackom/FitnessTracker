@@ -9,6 +9,10 @@ const routine = {
 };
 
 describe("Workout logging", () => {
+  beforeEach(() => {
+    cy.mockAuth();
+  });
+  
   it("saves only completed sets and shows them in history", () => {
     cy.intercept("GET", "**/api/routines/12", routine).as("getRoutine");
     cy.intercept("POST", "**/api/workouts", (request) => {
@@ -106,6 +110,10 @@ describe("Workout logging", () => {
 });
 
 describe("Workout history", () => {
+  beforeEach(() => {
+    cy.mockAuth();
+  });
+  
   it("shows an empty state and links to routines", () => {
     cy.intercept("GET", "**/api/workouts", [])
       .as("getWorkouts");

@@ -1,4 +1,8 @@
 describe("Exercise library", () => {
+  beforeEach(() => {
+    cy.mockAuth();
+  });
+
   it("displays exercises returned by the API", () => {
     cy.intercept("GET", "**/api/exercises", {
         fixture: "exercises.json",
