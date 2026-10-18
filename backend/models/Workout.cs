@@ -6,5 +6,7 @@ public class Workout
     public int? RoutineId { get; set; }
     public string RoutineName { get; set; } = string.Empty;
     public DateTime CompletedAtUtc { get; set; }
+    public string? UserId { get; set; }
+    public ApplicationUser? User { get; set; }
     public ICollection<WorkoutSet> Sets { get; set; } = new List<WorkoutSet>();
 }

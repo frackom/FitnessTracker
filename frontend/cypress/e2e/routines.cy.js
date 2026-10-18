@@ -43,6 +43,8 @@ function visitBuilder(path = "/routines/create") {
 
 describe("Routines", () => {
   beforeEach(() => {
+    cy.mockAuth();
+    
     cy.intercept("GET", "**/api/exercises", exercises)
       .as("getExercises");
 
